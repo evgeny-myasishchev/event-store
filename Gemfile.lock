@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    xtms-event-store (0.0.1)
+    infora-event-store (0.0.1)
       sequel
 
 GEM
@@ -17,14 +17,14 @@ GEM
     rspec-expectations (2.11.1)
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.11.1)
-    sequel (3.37.0)
+    sequel (3.38.0)
     sqlite3 (1.3.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  infora-event-store!
   log4r
   rspec
   sqlite3
-  xtms-event-store!

@@ -1,0 +1,29 @@
+log4r_config:
+    pre_config:
+        global:
+            level: ALL
+    
+    # define all outputters (incl. formatters)
+    outputters:
+    - type: RollingFileOutputter
+      name: log_file
+      filename: "log/xtms-event-store-.log"
+      maxsize: "5242880" #5MB
+      max_backups: "5"
+      formatter:
+          date_pattern: '%Y-%m-%d %H:%M:%S'
+          pattern     : '[%d %C %l]: %m'
+          type        : PatternFormatter
+    - type: StdoutOutputter
+      name: console
+      formatter:
+          date_pattern: '%H:%M:%S'
+          pattern     : '[%d %C %l]: %m'
+          type        : PatternFormatter
+
+    loggers:
+    - name      : xtms-event-store
+      trace     : 'true'
+      outputters:
+      - log_file
+      # - console #Uncomment this if console output is needed in tests.

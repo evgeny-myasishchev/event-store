@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    infora-event-store (0.0.1)
+    infora-event-store (0.0.1a)
       sequel
 
 GEM

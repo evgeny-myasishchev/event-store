@@ -1,6 +1,6 @@
 # Tracks a series of events and commit them to durable storage.
 class EventStore::EventStream
-  Log = EventStore::Logging::Logger.get 'xtms-event-store::event-stream'
+  Log = EventStore::Logging::Logger.get 'event-store::event-stream'
   
   # Gets the value which uniquely identifies the stream to which the stream belongs.
 	attr_reader :stream_id

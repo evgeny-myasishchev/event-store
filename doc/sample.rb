@@ -9,11 +9,11 @@ require 'log4r/outputter/rollingfileoutputter'
 log4r_config = YAML.load_file(File.expand_path('../log4r.yml', __FILE__))
 Log4r::YamlConfigurator.decode_yaml(log4r_config['log4r_config'])
 
-require 'xtms-event-store'
+require 'event-store'
 
 module Sample
   include EventStore
-  Log = Logging::Logger.get 'xtms-event-store::sample'
+  Log = Logging::Logger.get 'event-store::sample'
   
   class EmployeeHired
     attr_reader :id

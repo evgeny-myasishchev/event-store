@@ -1,7 +1,7 @@
 class EventStore::Base
   class InvalidStreamIdError < ::StandardError; end
   
-  Log = EventStore::Logging::Logger.get 'xtms-event-store'
+  Log = EventStore::Logging::Logger.get 'event-store'
   
   attr_reader :persistence_engine
     

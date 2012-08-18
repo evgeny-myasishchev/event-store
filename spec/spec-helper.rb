@@ -6,7 +6,7 @@ require 'bundler/setup'
 
 gem 'rspec'
 require 'rspec'
-require 'xtms-event-store'
+require 'event-store'
 
 module Support
   autoload :CommitsHelper, 'support/commits-helper'

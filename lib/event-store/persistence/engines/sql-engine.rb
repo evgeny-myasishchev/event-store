@@ -8,7 +8,7 @@ module EventStore::Persistence::Engines
       end
     end
     
-    Log = EventStore::Logging::Logger.get("xtms-event-store::persistence::sql-engine")
+    Log = EventStore::Logging::Logger.get("event-store::persistence::sql-engine")
     
     attr_reader :connection
     
@@ -24,7 +24,7 @@ module EventStore::Persistence::Engines
       }.merge! options
       
       @connection = Sequel.connect connection_specification
-      @connection.loggers << EventStore::Logging::Logger.get("xtms-event-store::persistance::orm")
+      @connection.loggers << EventStore::Logging::Logger.get("event-store::persistance::orm")
       @connection.sql_log_level = @options[:orm_log_level]
       
       @initialized = false

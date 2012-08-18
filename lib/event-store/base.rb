@@ -1,13 +1,13 @@
-class Xtms::EventStore::Base
+class EventStore::Base
   class InvalidStreamIdError < ::StandardError; end
   
-  Log = Xtms::EventStore::Logging::Logger.get 'xtms-event-store'
+  Log = EventStore::Logging::Logger.get 'xtms-event-store'
   
   attr_reader :persistence_engine
     
   def initialize(persistence_engine, dispatcher)
     @persistence_engine, @dispatcher = persistence_engine, dispatcher
-    @dispatcher_hook                 = Xtms::EventStore::Hooks::DispatcherHook.new(dispatcher, persistence_engine)
+    @dispatcher_hook                 = EventStore::Hooks::DispatcherHook.new(dispatcher, persistence_engine)
     @hooks                           = [@dispatcher_hook]
   end
   
@@ -35,7 +35,7 @@ class Xtms::EventStore::Base
   # In other case an empty stream returned.
   def open_stream(stream_id)
     raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
-    Xtms::EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
+    EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
   end
   
   #Removes all events from the stream. Use with caution.

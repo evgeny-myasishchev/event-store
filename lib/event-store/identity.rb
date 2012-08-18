@@ -1,4 +1,4 @@
-class Xtms::EventStore::Identity
+class EventStore::Identity
   require 'securerandom'
   
   #Generates random identity

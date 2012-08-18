@@ -1,4 +1,4 @@
-module Xtms::EventStore
+module EventStore
 	class Bootstrap
     class BootstrapError < ::StandardError
     end
@@ -7,7 +7,7 @@ module Xtms::EventStore
       with = With.new &block
       raise BootstrapError.new "Persistence has not been initialized" if with.persistence_engine.nil?
       raise BootstrapError.new "Dispatcher has not been initialized" if with.dispatcher.nil?
-      store = Xtms::EventStore::Base.new with.persistence_engine, with.dispatcher
+      store = EventStore::Base.new with.persistence_engine, with.dispatcher
       store.dispatch_undispatched
       store
     end

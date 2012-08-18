@@ -12,7 +12,7 @@ Log4r::YamlConfigurator.decode_yaml(log4r_config['log4r_config'])
 require 'xtms-event-store'
 
 module Sample
-  include Xtms::EventStore
+  include EventStore
   Log = Logging::Logger.get 'xtms-event-store::sample'
   
   class EmployeeHired
@@ -40,7 +40,7 @@ module Sample
   end
   
   def self.init_store
-    store = Xtms::EventStore::Bootstrap.store do |with|
+    store = EventStore::Bootstrap.store do |with|
       with.log4r_logging
       with.sql_persistence adapter: 'sqlite', database: 'db/event-store.sqlite3'
       with.synchorous_dispatcher do |commit|

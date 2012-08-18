@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::Commit do
+describe EventStore::Commit do
   include Support::CommitsHelper
   
   describe "eql? and ==" do
@@ -32,7 +32,7 @@ describe Xtms::EventStore::Commit do
       evt1 = new_event("evt1")
       evt2 = new_event("evt2")
       
-      Xtms::EventStore::Identity.should_receive(:generate).once.and_return("new-commit-id")
+      EventStore::Identity.should_receive(:generate).once.and_return("new-commit-id")
       
       commit = described_class.build(stream, [evt1, evt2])
       commit.stream_id.should eql "some-stream-id"

@@ -1,4 +1,4 @@
-module Xtms::EventStore::Persistence
+module EventStore::Persistence
   #Abstract class that defines methods that are required to persist commits
   class PersistenceEngine
     #Gets the corresponding commits from the stream indicated with the identifier.

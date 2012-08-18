@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::Hooks::PipelineHook do
+describe EventStore::Hooks::PipelineHook do
   describe "initialize" do
     it "should assign block to post_commit hook" do
       commit = mock(:commit)

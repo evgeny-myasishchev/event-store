@@ -1,4 +1,4 @@
-module Xtms::EventStore::Logging
+module EventStore::Logging
   class Logger
     def debug(*args) end
     def info(*args) end

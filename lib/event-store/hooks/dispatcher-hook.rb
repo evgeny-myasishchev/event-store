@@ -1,6 +1,6 @@
-module Xtms::EventStore::Hooks
+module EventStore::Hooks
   class DispatcherHook < PipelineHook
-    Log = Xtms::EventStore::Logging::Logger.get 'xtms-event-store::dispatcher-hook'
+    Log = EventStore::Logging::Logger.get 'xtms-event-store::dispatcher-hook'
     
     attr_reader :dispatcher, :persistence_engine
     

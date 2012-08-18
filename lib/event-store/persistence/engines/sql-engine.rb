@@ -1,14 +1,14 @@
 require 'sequel'
 
-module Xtms::EventStore::Persistence::Engines
-  class SqlEngine < Xtms::EventStore::Persistence::PersistenceEngine
+module EventStore::Persistence::Engines
+  class SqlEngine < EventStore::Persistence::PersistenceEngine
     class EngineNotInitialized < ::StandardError
       def initialize
         super("The engine has not been initialized. Please make sure the engine is initialized prior to using it. Initialization can be done with 'init_engine' method")
       end
     end
     
-    Log = Xtms::EventStore::Logging::Logger.get("xtms-event-store::persistence::sql-engine")
+    Log = EventStore::Logging::Logger.get("xtms-event-store::persistence::sql-engine")
     
     attr_reader :connection
     
@@ -24,7 +24,7 @@ module Xtms::EventStore::Persistence::Engines
       }.merge! options
       
       @connection = Sequel.connect connection_specification
-      @connection.loggers << Xtms::EventStore::Logging::Logger.get("xtms-event-store::persistance::orm")
+      @connection.loggers << EventStore::Logging::Logger.get("xtms-event-store::persistance::orm")
       @connection.sql_log_level = @options[:orm_log_level]
       
       @initialized = false
@@ -112,7 +112,7 @@ module Xtms::EventStore::Persistence::Engines
       end
       
       def map_commit(commit_hash)
-        Xtms::EventStore::Commit.new stream_id: commit_hash[:stream_id],
+        EventStore::Commit.new stream_id: commit_hash[:stream_id],
           commit_id: commit_hash[:commit_id],
           commit_sequence: commit_hash[:commit_sequence],
           stream_revision: commit_hash[:stream_revision],

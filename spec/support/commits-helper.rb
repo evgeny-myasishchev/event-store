@@ -1,7 +1,7 @@
 module Support::CommitsHelper
   
   def new_event(body)
-    Xtms::EventStore::EventMessage.new body
+    EventStore::EventMessage.new body
   end
   
   #*args are possible events
@@ -12,7 +12,7 @@ module Support::CommitsHelper
       :events => args
     }
     yield commit_args if block_given?
-    Xtms::EventStore::Commit.new commit_args
+    EventStore::Commit.new commit_args
   end
   
   def commit_all(stream, *args)

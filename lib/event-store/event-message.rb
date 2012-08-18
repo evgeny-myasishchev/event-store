@@ -1,4 +1,4 @@
-class Xtms::EventStore::EventMessage
+class EventStore::EventMessage
   
   #Gets or sets the actual event message body.
   attr_reader :body

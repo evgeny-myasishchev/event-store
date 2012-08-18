@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::EventMessage do
+describe EventStore::EventMessage do
   describe "eql? and ==" do
     it "should return true if bodies and headers are eql" do
       left  = described_class.new "event-1", :header1 => "value1", :header2 => "value2"

@@ -1,13 +1,13 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::EventStream do
+describe EventStore::EventStream do
   let(:persistence_engine) { mock("persistence-engine", :commit => nil, :get_from => []) }
   let(:stream) { described_class.new("fake-stream-id", persistence_engine) }
   
   describe "add" do
     it "should add an event to an uncommitted_events list" do
-      evt1 = Xtms::EventStore::EventMessage.new :some_body => 1
-      evt2 = Xtms::EventStore::EventMessage.new :another_body => 2
+      evt1 = EventStore::EventMessage.new :some_body => 1
+      evt2 = EventStore::EventMessage.new :another_body => 2
       
       stream.uncommitted_events.should be_empty
       
@@ -22,13 +22,13 @@ describe Xtms::EventStore::EventStream do
   
   describe "uncommitted_events" do
     it "should be read-only array" do
-      stream.uncommitted_events.should be_instance_of(Xtms::EventStore::Infrastructure::ReadOnlyArray)
+      stream.uncommitted_events.should be_instance_of(EventStore::Infrastructure::ReadOnlyArray)
     end
   end
   
   describe "committed_events" do
     it "should be read-only array" do
-      stream.committed_events.should be_instance_of(Xtms::EventStore::Infrastructure::ReadOnlyArray)
+      stream.committed_events.should be_instance_of(EventStore::Infrastructure::ReadOnlyArray)
     end  
   end
   
@@ -75,7 +75,7 @@ describe Xtms::EventStore::EventStream do
       stream.add(evt1).add(evt2)
       
       attempt = mock(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
-      Xtms::EventStore::Commit.should_receive(:build).with(stream, [evt1, evt2]).and_return(attempt)
+      EventStore::Commit.should_receive(:build).with(stream, [evt1, evt2]).and_return(attempt)
       
       persistence_engine.should_receive(:commit).with(attempt)
       
@@ -83,7 +83,7 @@ describe Xtms::EventStore::EventStream do
     end
     
     it "should do nothing if no uncommited_events" do
-      Xtms::EventStore::Commit.should_not_receive(:build)
+      EventStore::Commit.should_not_receive(:build)
       persistence_engine.should_not_receive(:commit)
       stream.commit_changes
     end
@@ -106,7 +106,7 @@ describe Xtms::EventStore::EventStream do
       stream.uncommitted_events.length.should eql 2
       
       attempt = mock(:attempt, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
-      Xtms::EventStore::Commit.stub(:build) { attempt }
+      EventStore::Commit.stub(:build) { attempt }
       
       stream.commit_changes
       
@@ -129,9 +129,9 @@ describe Xtms::EventStore::EventStream do
     
     it "should invoke pipeline_hooks after commit" do
       hook1   = mock(:hook1), hook2 = mock(:hook2)
-      stream = described_class.new(Xtms::EventStore::Identity::generate, persistence_engine, :hooks => [hook1, hook2])
+      stream = described_class.new(EventStore::Identity::generate, persistence_engine, :hooks => [hook1, hook2])
       attempt = mock(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
-      Xtms::EventStore::Commit.stub(:build) { attempt }
+      EventStore::Commit.stub(:build) { attempt }
       stream.add(mock("event-1"))
       
       hook1.should_receive(:post_commit).with(attempt)

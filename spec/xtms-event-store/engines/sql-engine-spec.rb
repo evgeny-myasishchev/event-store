@@ -1,7 +1,7 @@
 gem 'sqlite3'
 require 'spec-helper'
 
-describe Xtms::EventStore::Persistence::Engines::SqlEngine do
+describe EventStore::Persistence::Engines::SqlEngine do
   include Support::CommitsHelper
   let(:engine) { described_class.new({adapter: "sqlite", database: ":memory:"}, {:orm_log_level => :debug}) }
   subject {
@@ -69,10 +69,10 @@ describe Xtms::EventStore::Persistence::Engines::SqlEngine do
   
   context "not initialized" do
     it "should raise EngineNotInitialized error for all engine methods" do
-      lambda { engine.get_from("some-stream-id") }.should raise_error(Xtms::EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.get_undispatched_commits }.should raise_error(Xtms::EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.mark_commit_as_dispatched(mock(:commit)) }.should raise_error(Xtms::EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.commit(mock(:commit)) }.should raise_error(Xtms::EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.get_from("some-stream-id") }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.get_undispatched_commits }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.mark_commit_as_dispatched(mock(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.commit(mock(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
     end
   end
   

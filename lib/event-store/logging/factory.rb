@@ -1,4 +1,4 @@
-module Xtms::EventStore::Logging
+module EventStore::Logging
   class Factory
     def self.logger(name)
       ConsoleLogger.new(name)

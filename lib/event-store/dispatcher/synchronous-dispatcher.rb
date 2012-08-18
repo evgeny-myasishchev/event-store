@@ -1,4 +1,4 @@
-module Xtms::EventStore::Dispatcher
+module EventStore::Dispatcher
   class SynchronousDispatcher
     def initialize(&receiver)
       @receiver = receiver

@@ -1,5 +1,5 @@
-module Xtms::EventStore::Persistence::Engines
-  class InMemoryEngine < Xtms::EventStore::Persistence::PersistenceEngine
+module EventStore::Persistence::Engines
+  class InMemoryEngine < EventStore::Persistence::PersistenceEngine
     def initialize
       @streams_store         = {}
       @undispatched_store    = []

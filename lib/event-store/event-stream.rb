@@ -1,6 +1,6 @@
 # Tracks a series of events and commit them to durable storage.
-class Xtms::EventStore::EventStream
-  Log = Xtms::EventStore::Logging::Logger.get 'xtms-event-store::event-stream'
+class EventStore::EventStream
+  Log = EventStore::Logging::Logger.get 'xtms-event-store::event-stream'
   
   # Gets the value which uniquely identifies the stream to which the stream belongs.
 	attr_reader :stream_id
@@ -17,12 +17,12 @@ class Xtms::EventStore::EventStream
 
   #Gets the collection of events which have been successfully persisted to durable storage.
 	def committed_events
-	  @committed_events_ro ||= Xtms::EventStore::Infrastructure::ReadOnlyArray.new(@committed_events) 
+	  @committed_events_ro ||= EventStore::Infrastructure::ReadOnlyArray.new(@committed_events) 
 	end
 
 	#Gets the collection of yet-to-be-committed events that have not yet been persisted to durable storage.
 	def uncommitted_events
-	  @uncommitted_events_ro ||= Xtms::EventStore::Infrastructure::ReadOnlyArray.new(@uncommitted_events) 
+	  @uncommitted_events_ro ||= EventStore::Infrastructure::ReadOnlyArray.new(@uncommitted_events) 
 	end
 	
 	#
@@ -66,7 +66,7 @@ class Xtms::EventStore::EventStream
 	    return
 	  end
 	  Log.debug "Committing '#{stream_id}'. #{@uncommitted_events.length} uncommitted events to commit."
-	  attempt = Xtms::EventStore::Commit.build(self, @uncommitted_events.dup)
+	  attempt = EventStore::Commit.build(self, @uncommitted_events.dup)
 	  @persistence_engine.commit(attempt)
 	  populate_stream_with([attempt])
 	  attempt.events.each { |evt| @uncommitted_events.delete(evt) }

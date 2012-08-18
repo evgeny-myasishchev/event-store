@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::Hooks::DispatcherHook do
+describe EventStore::Hooks::DispatcherHook do
   let(:commit) { mock(:commit, :commit_id => "commit-1") }
   let(:dispatcher) { mock(:dispatcher) }
   let(:persistence_engine) { mock(:persistence_engine) }

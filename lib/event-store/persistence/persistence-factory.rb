@@ -1,4 +1,4 @@
-module Xtms::EventStore::Persistence
+module EventStore::Persistence
   #Factory that is used to create stream persistence engines
   class PersistenceFactory
     #Builds a persistence engine.

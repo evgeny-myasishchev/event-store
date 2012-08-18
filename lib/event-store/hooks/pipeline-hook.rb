@@ -1,4 +1,4 @@
-module Xtms::EventStore::Hooks
+module EventStore::Hooks
   class PipelineHook
     def initialize(options = {}, &block)
       @options = {

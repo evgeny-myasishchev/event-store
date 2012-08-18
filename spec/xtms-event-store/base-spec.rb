@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::Base do
+describe EventStore::Base do
   let(:persistence_engine) { mock(:persistence_engine) }
   let(:dispatcher) { mock(:dispatcher) }
   let(:store) { described_class.new(persistence_engine, dispatcher) }
@@ -23,11 +23,11 @@ describe Xtms::EventStore::Base do
   describe "open_stream" do
     it "should initialize a new stream with persistence engine and dispatcher hook" do
       mock_stream = mock(:stream)
-      Xtms::EventStore::EventStream.should_receive(:new) do |stream_id, pe, options|
+      EventStore::EventStream.should_receive(:new) do |stream_id, pe, options|
         stream_id.should eql "some-stream-id"
         pe.should be persistence_engine
         options[:hooks].should have(1).elements
-        options[:hooks][0].should be_instance_of(Xtms::EventStore::Hooks::DispatcherHook)
+        options[:hooks][0].should be_instance_of(EventStore::Hooks::DispatcherHook)
         options[:hooks][0].dispatcher.should be dispatcher
         options[:hooks][0].persistence_engine.should be persistence_engine
         mock_stream
@@ -36,8 +36,8 @@ describe Xtms::EventStore::Base do
     end
     
     it "should fail if stream-id is empty" do
-      lambda { store.open_stream("") }.should raise_error(Xtms::EventStore::Base::InvalidStreamIdError)
-      lambda { store.open_stream(nil) }.should raise_error(Xtms::EventStore::Base::InvalidStreamIdError)
+      lambda { store.open_stream("") }.should raise_error(EventStore::Base::InvalidStreamIdError)
+      lambda { store.open_stream(nil) }.should raise_error(EventStore::Base::InvalidStreamIdError)
     end
   end
   

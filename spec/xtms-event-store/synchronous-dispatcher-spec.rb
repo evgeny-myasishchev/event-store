@@ -1,6 +1,6 @@
 require 'spec-helper'
 
-describe Xtms::EventStore::Dispatcher::SynchronousDispatcher do
+describe EventStore::Dispatcher::SynchronousDispatcher do
   describe "dispatch" do
     it "should dispatch the commit immediatelly to the receiver" do
       commit = mock(:commit)

@@ -17,7 +17,7 @@ class EventStore::Base
     Log.info "Dispatching undispatched commits..."
     undispatched = @persistence_engine.get_undispatched_commits
     if undispatched.length == 0
-      Log.debug "No undispatched commits found."
+      Log.info "No undispatched commits found."
       return
     end
     Log.debug "#{undispatched.length} found."

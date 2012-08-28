@@ -3,12 +3,11 @@ module EventStore
     class BootstrapError < ::StandardError
     end
     
-    def self.store(&block)
+    def self.bootstrap(&block)
       with = With.new &block
       raise BootstrapError.new "Persistence has not been initialized" if with.persistence_engine.nil?
       raise BootstrapError.new "Dispatcher has not been initialized" if with.dispatcher.nil?
       store = EventStore::Base.new with.persistence_engine, with.dispatcher
-      store.dispatch_undispatched
       store
     end
 
@@ -19,9 +18,13 @@ module EventStore
       def initialize(&block)
         yield(self)
       end
+      
+      def logging(factory)
+        Logging::Logger.factory = factory
+      end
 
       def log4r_logging
-        Logging::Logger.factory = Logging::Log4rFactory
+        logging(Logging::Log4rFactory)
       end
 
       def in_memory_persistence

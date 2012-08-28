@@ -40,7 +40,7 @@ module Sample
   end
   
   def self.init_store
-    store = EventStore::Bootstrap.store do |with|
+    store = EventStore.bootstrap do |with|
       with.log4r_logging
       with.sql_persistence adapter: 'sqlite', database: 'db/event-store.sqlite3'
       with.synchorous_dispatcher do |commit|

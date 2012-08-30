@@ -40,7 +40,11 @@ module EventStore::Persistence::Engines
     
     def for_each_commit(&block)
       ensure_initialized!
-      @storage.order(:commit_timestamp).each do |c|
+      
+      #to_a evaluates the query immediatelly. In other case it will do a select for each commit.
+      #Also when using SQLite fetch for each commit may cause locking errors if event store and read store are the same database.
+      #TODO: Butch fetch should be considered.
+      @storage.order(:commit_timestamp).to_a.each do |c|
         yield map_commit(c)
       end
       nil

@@ -75,7 +75,7 @@ describe EventStore::EventStream do
       stream.add(evt1).add(evt2)
       
       attempt = mock(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
-      EventStore::Commit.should_receive(:build).with(stream, [evt1, evt2]).and_return(attempt)
+      EventStore::Commit.should_receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
       persistence_engine.should_receive(:commit).with(attempt)
       
@@ -138,6 +138,14 @@ describe EventStore::EventStream do
       hook2.should_receive(:post_commit).with(attempt)
       
       stream.commit_changes
+    end
+
+    it "should build commit with headers" do
+      evt1 = mock("event-1")
+      stream.add(evt1)
+      
+      commit = stream.commit_changes header1: "header-1", header2: "header-2"
+      commit.headers.should eql header1: "header-1", header2: "header-2"
     end
   end
 end

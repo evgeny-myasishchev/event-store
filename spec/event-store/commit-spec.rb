@@ -27,14 +27,14 @@ describe EventStore::Commit do
   end
   
   describe "build" do
-    it "should create a new commit from provided stream and events" do
+    it "should create a new commit from provided stream events and headers" do
       stream = mock(:stream, :stream_id => "some-stream-id", :commit_sequence => 102, :stream_revision => 23)
       evt1 = new_event("evt1")
       evt2 = new_event("evt2")
       
       EventStore::Identity.should_receive(:generate).once.and_return("new-commit-id")
       
-      commit = described_class.build(stream, [evt1, evt2])
+      commit = described_class.build(stream, [evt1, evt2], header1: "header 1", header2: "header 2")
       commit.stream_id.should eql "some-stream-id"
       commit.commit_id.should eql "new-commit-id"
       commit.commit_sequence.should eql 103
@@ -42,6 +42,7 @@ describe EventStore::Commit do
       commit.events.should have(2).items
       commit.events[0].should eql evt1
       commit.events[1].should eql evt2
+      commit.headers.should eql(header1: "header 1", header2: "header 2")
     end
   end
 end

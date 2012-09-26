@@ -8,7 +8,8 @@ module EventStore
         :commit_sequence  => 1,
         :stream_revision  => 1,
         :commit_timestamp => Time.now.utc,
-        :events           => []
+        :events           => [],
+        :headers          => {}
       }
       # Assigning only declared attributes
       values = attributes.merge hash
@@ -34,6 +35,10 @@ module EventStore
 
     # Gets the collection of event messages to be committed as a single unit.
     attr_reader :events
+
+    # Unstructured information associated with the commit.
+    # It can be some contextual info like ip_address and user_id
+    attr_reader :headers
     
     def ==(other)
       @stream_id == other.stream_id && @commit_id == other.commit_id
@@ -48,12 +53,13 @@ module EventStore
     end
     
     class << self
-      def build(stream, events)
+      def build(stream, events, headers = {})
         new :stream_id => stream.stream_id,
           :commit_id => Identity.generate,
           :commit_sequence => stream.commit_sequence + 1,
           :stream_revision => stream.stream_revision + events.length,
-          :events => events
+          :events => events,
+          :headers => headers
       end
     end
   end

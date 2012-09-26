@@ -76,7 +76,8 @@ module EventStore::Persistence::Engines
         commit_sequence: attempt.commit_sequence,
         stream_revision: attempt.stream_revision,
         commit_timestamp: attempt.commit_timestamp,
-        events: Marshal.dump(attempt.events)
+        events: Marshal.dump(attempt.events),
+        headers: Marshal.dump(attempt.headers)
       })
       nil
     end
@@ -93,6 +94,7 @@ module EventStore::Persistence::Engines
           DateTime :commit_timestamp, :null=>false
           Boolean :has_been_dispatched, :null=>false, :default => false
           Blob :events, :null=>false
+          Blob :headers, :null=>false
         end
       end
       @storage = @connection[@options[:table]]
@@ -121,7 +123,8 @@ module EventStore::Persistence::Engines
           commit_sequence: commit_hash[:commit_sequence],
           stream_revision: commit_hash[:stream_revision],
           commit_timestamp: commit_hash[:commit_timestamp].utc,
-          events: Marshal.load(commit_hash[:events])
+          events: Marshal.load(commit_hash[:events]),
+          headers: Marshal.load(commit_hash[:headers])
       end
       
       def prepare_statements storage
@@ -131,7 +134,8 @@ module EventStore::Persistence::Engines
           commit_sequence: :$commit_sequence,
           stream_revision: :$stream_revision,
           commit_timestamp: :$commit_timestamp,
-          events: :$events
+          events: :$events,
+          headers: :$headers
         })
         storage.
           filter(commit_id: :$commit_id).

@@ -53,6 +53,11 @@ describe EventStore::Persistence::Engines::SqlEngine do
         column[:allow_null].should be_false
         column[:type].should eql :boolean
       end
+
+      check_column(:headers, columns) do |column|
+        column[:allow_null].should be_false
+        column[:type].should eql :blob
+      end
       
       check_column(:events, columns) do |column|
         column[:allow_null].should be_false

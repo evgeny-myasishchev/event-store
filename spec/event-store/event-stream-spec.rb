@@ -4,6 +4,13 @@ describe EventStore::EventStream do
   let(:persistence_engine) { mock("persistence-engine", :commit => nil, :get_from => []) }
   let(:stream) { described_class.new("fake-stream-id", persistence_engine) }
   
+  describe "initialize" do
+    it "should fail if stream-id is empty" do
+      lambda { described_class.new("", persistence_engine) }.should raise_error(EventStore::EventStream::InvalidStreamIdError)
+      lambda { described_class.new(nil, persistence_engine) }.should raise_error(EventStore::EventStream::InvalidStreamIdError)
+    end
+  end
+  
   describe "add" do
     it "should add an event to an uncommitted_events list" do
       evt1 = EventStore::EventMessage.new :some_body => 1

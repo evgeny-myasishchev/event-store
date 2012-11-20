@@ -1,5 +1,7 @@
 # Tracks a series of events and commit them to durable storage.
 class EventStore::EventStream
+  class InvalidStreamIdError < ::StandardError; end
+  
   Log = EventStore::Logging::Logger.get 'event-store::event-stream'
   
   # Gets the value which uniquely identifies the stream to which the stream belongs.
@@ -35,6 +37,7 @@ class EventStore::EventStream
 	# * 
 	# 
 	def initialize(stream_id, persistence_engine, options = {})
+	  raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
 	  @options = {
 	    :hooks => []
 	  }.merge!(options)

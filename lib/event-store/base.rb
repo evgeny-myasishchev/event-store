@@ -1,9 +1,7 @@
 class EventStore::Base
-  class InvalidStreamIdError < ::StandardError; end
-  
   Log = EventStore::Logging::Logger.get 'event-store'
   
-  attr_reader :persistence_engine
+  attr_reader :persistence_engine, :dispatcher_hook
     
   def initialize(persistence_engine, dispatcher)
     @persistence_engine, @dispatcher = persistence_engine, dispatcher
@@ -34,9 +32,14 @@ class EventStore::Base
   # If there is at least one commit then the stream get's opened and populated
   # In other case an empty stream returned.
   def open_stream(stream_id)
-    raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
     EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
   end
+  
+  # def begin_work(&block)
+  #   work = UnitOfWork.new self, @dispatcher_hook
+  #   yield(&block)
+  #   work.commit_changes
+  # end
   
   #Removes all events from the stream. Use with caution.
   def purge

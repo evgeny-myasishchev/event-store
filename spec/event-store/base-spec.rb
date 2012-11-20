@@ -34,11 +34,6 @@ describe EventStore::Base do
       end
       store.open_stream("some-stream-id").should eql mock_stream
     end
-    
-    it "should fail if stream-id is empty" do
-      lambda { store.open_stream("") }.should raise_error(EventStore::Base::InvalidStreamIdError)
-      lambda { store.open_stream(nil) }.should raise_error(EventStore::Base::InvalidStreamIdError)
-    end
   end
   
   describe "purge" do

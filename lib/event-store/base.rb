@@ -35,12 +35,12 @@ class EventStore::Base
     EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
   end
   
-  def begin_work(&block)
+  def begin_work(headers = {}, &block)
     Log.debug "Starting work..."
     work = EventStore::UnitOfWork.new self, @dispatcher_hook
     yield(work)
     Log.debug "Committing work..."
-    work.commit_changes
+    work.commit_changes headers
     Log.debug "Work committed."
   end
   

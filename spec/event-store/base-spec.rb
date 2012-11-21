@@ -52,5 +52,15 @@ describe EventStore::Base do
         w.should be work
       end
     end
+    
+    it "should commit changes with headers if supplied" do
+      headers = {header1: 'header-1'}
+      work = mock(:work)
+      EventStore::UnitOfWork.should_receive(:new).with(store, store.dispatcher_hook).and_return(work)
+      work.should_receive(:commit_changes).with(headers)
+      store.begin_work headers do |w|
+        w.should be work
+      end
+    end
   end
 end

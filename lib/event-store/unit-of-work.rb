@@ -1,5 +1,7 @@
 # Unit of Work and there is not mutch to add here :)
 class EventStore::UnitOfWork
+  Log = EventStore::Logging::Logger.get 'event-store::unit-of-work'
+  
   def initialize(event_store, dispatcher_hook)
     @event_store = event_store
     @deferred_dispatcher_hook = EventStore::Hooks::DeferredDispatcherHook.new(dispatcher_hook)
@@ -18,7 +20,9 @@ class EventStore::UnitOfWork
   # Commits the changes from all opened streams and saves them to the store
   # Commits are dispatched only after all the events from all opened streams are saved to the store
   def commit_changes(headers = {})
+    Log.debug "Committing changes of opened streams. In total we have '#{@opened_streams.length}' streams opened..."
     @opened_streams.values.each { |stream| stream.commit_changes(headers) }
+    Log.debug "Dispatching commits..."
     @deferred_dispatcher_hook.dispatch_deferred
   end
 end

@@ -31,9 +31,12 @@ module EventStore
   end
   
   module Hooks
-    autoload :PipelineHook, 'event-store/hooks/pipeline-hook'
+    autoload :DeferredDispatcherHook, 'event-store/hooks/deferred-dispatcher-hook'
     autoload :DispatcherHook, 'event-store/hooks/dispatcher-hook'
+    autoload :PipelineHook, 'event-store/hooks/pipeline-hook'
   end
+  
+  autoload :UnitOfWork, 'event-store/unit-of-work'
   
   class << self
     def bootstrap(&block)

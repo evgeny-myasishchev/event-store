@@ -42,4 +42,15 @@ describe EventStore::Base do
       store.purge
     end
   end
+  
+  describe "begin_work" do
+    it "should start a new work and commit changes" do
+      work = mock(:work)
+      EventStore::UnitOfWork.should_receive(:new).with(store, store.dispatcher_hook).and_return(work)
+      work.should_receive(:commit_changes)
+      store.begin_work do |w|
+        w.should be work
+      end
+    end
+  end
 end

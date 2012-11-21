@@ -36,12 +36,13 @@ class EventStore::Base
   end
   
   def begin_work(headers = {}, &block)
-    Log.debug "Starting work..."
     work = EventStore::UnitOfWork.new self, @dispatcher_hook
-    yield(work)
-    Log.debug "Committing work..."
-    work.commit_changes headers
-    Log.debug "Work committed."
+    if block_given?
+      yield(work)
+      work.commit_changes headers
+    else
+      work
+    end
   end
   
   #Removes all events from the stream. Use with caution.

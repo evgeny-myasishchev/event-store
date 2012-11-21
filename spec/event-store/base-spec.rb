@@ -44,9 +44,11 @@ describe EventStore::Base do
   end
   
   describe "begin_work" do
-    it "should start a new work and commit changes" do
-      work = mock(:work)
+    let(:work) { mock(:work, commit_changes: nil) }
+    before(:each) do
       EventStore::UnitOfWork.should_receive(:new).with(store, store.dispatcher_hook).and_return(work)
+    end
+    it "should start a new work and commit changes" do
       work.should_receive(:commit_changes)
       store.begin_work do |w|
         w.should be work
@@ -55,12 +57,20 @@ describe EventStore::Base do
     
     it "should commit changes with headers if supplied" do
       headers = {header1: 'header-1'}
-      work = mock(:work)
-      EventStore::UnitOfWork.should_receive(:new).with(store, store.dispatcher_hook).and_return(work)
       work.should_receive(:commit_changes).with(headers)
       store.begin_work headers do |w|
         w.should be work
       end
+    end
+    
+    it "should return nil if block given" do
+      store.begin_work do |w|
+      end.should be_nil
+    end
+    
+    it "should just start a new work and return it if no block given" do
+      work.should_not_receive(:commit_changes)
+      store.begin_work.should be(work)
     end
   end
 end

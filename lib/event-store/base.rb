@@ -35,11 +35,14 @@ class EventStore::Base
     EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
   end
   
-  # def begin_work(&block)
-  #   work = UnitOfWork.new self, @dispatcher_hook
-  #   yield(&block)
-  #   work.commit_changes
-  # end
+  def begin_work(&block)
+    Log.debug "Starting work..."
+    work = EventStore::UnitOfWork.new self, @dispatcher_hook
+    yield(work)
+    Log.debug "Committing work..."
+    work.commit_changes
+    Log.debug "Work committed."
+  end
   
   #Removes all events from the stream. Use with caution.
   def purge

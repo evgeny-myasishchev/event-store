@@ -12,7 +12,7 @@ module EventStore::Logging
       end
       
       def get(name)
-        (@factory || Factory).logger(name)
+        (@factory || Factory).get(name)
       end
     end
   end

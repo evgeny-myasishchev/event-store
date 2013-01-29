@@ -1,6 +1,6 @@
 module EventStore::Logging
   class Factory
-    def self.logger(name)
+    def self.get(name)
       ConsoleLogger.new(name)
     end
   end

@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'infora-event-store'
-  s.version     = '0.0.2a'
+  s.version     = '0.0.3a'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Evgeny Myasishchev', 'Vladimir Ikryanov']
   s.email       = ['info@infora.com.ua']

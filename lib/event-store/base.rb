@@ -28,6 +28,11 @@ class EventStore::Base
     Log.info "All undispatched commits dispatched."
   end
   
+  # Returns true if the stream exists.
+  def stream_exists?(stream_id)
+    @persistence_engine.exists?(stream_id)
+  end
+  
   # Opens an event stream
   # If there is at least one commit then the stream get's opened and populated
   # In other case an empty stream returned.

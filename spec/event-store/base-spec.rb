@@ -20,6 +20,13 @@ describe EventStore::Base do
     end
   end
   
+  describe "stream_exists?" do
+    it "should use persistence engine to check if the stream exists" do
+      persistence_engine.should_receive(:exists?).with('stream-992').and_return(true)
+      store.stream_exists?('stream-992').should be_true
+    end
+  end
+  
   describe "open_stream" do
     it "should initialize a new stream with persistence engine and dispatcher hook" do
       mock_stream = mock(:stream)

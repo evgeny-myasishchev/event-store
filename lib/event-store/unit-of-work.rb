@@ -10,6 +10,11 @@ class EventStore::UnitOfWork
     @opened_streams = {}
   end
   
+  # Returns true if the stream exists.
+  def stream_exists?(stream_id)
+    @event_store.stream_exists?(stream_id)
+  end
+  
   # Opens the stream and tracks all the modifications of it
   # All the modification of the stream are saved on commit_changes
   def open_stream(stream_id)

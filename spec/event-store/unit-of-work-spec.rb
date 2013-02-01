@@ -8,6 +8,13 @@ describe EventStore::UnitOfWork do
   
   subject { described_class.new event_store, dispatcher_hook }
   
+  describe "stream_exists?" do
+    it "should use event store to check if it exists" do
+      event_store.should_receive(:stream_exists?).with('stream-3902').and_return(true)
+      subject.stream_exists?('stream-3902').should be_true
+    end
+  end
+  
   describe "open_stream" do
     let(:stream) { mock(:stream) }
     

@@ -4,6 +4,11 @@ class EventStore::EventStream
   
   Log = EventStore::Logging::Logger.get 'event-store::event-stream'
   
+  # Gets the value that indicates if the stream is new (no commits for the stream has been persisted yet).
+  def new_stream?
+    @new_stream
+  end
+  
   # Gets the value which uniquely identifies the stream to which the stream belongs.
 	attr_reader :stream_id
 	
@@ -71,6 +76,7 @@ class EventStore::EventStream
 	  Log.debug "Committing '#{stream_id}'. #{@uncommitted_events.length} uncommitted events to commit."
 	  attempt = EventStore::Commit.build(self, @uncommitted_events.dup, headers)
 	  @persistence_engine.commit(attempt)
+    @new_stream = false #After commits are committed the stream is not new anymore
 	  populate_stream_with([attempt])
 	  attempt.events.each { |evt| @uncommitted_events.delete(evt) }
 	  Log.debug "Processing pipeline hooks..."
@@ -83,8 +89,10 @@ class EventStore::EventStream
 	  def populate_stream_with(commits)
 	    if commits.empty?
 	      Log.debug "Opening new stream '#{stream_id}' since no commits found..."
+        @new_stream = true
 	      return
 	    end
+      @new_stream = false
 	    Log.debug "Populating stream '#{stream_id}' with #{commits.length} commits..."
 	    commits.each do |commit|
 	      @commit_sequence = commit.commit_sequence

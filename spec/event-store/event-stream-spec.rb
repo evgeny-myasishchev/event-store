@@ -46,22 +46,32 @@ describe EventStore::EventStream do
     end
     
     context "if no commits" do
-      it "should initialize new stream" do
+      before(:each) do
         persistence_engine.stub(:get_from) { [] }
+      end
+      
+      it "should initialize new stream" do
         stream.stream_revision.should eql 0
         stream.commit_sequence.should eql 0
         stream.committed_events.should be_empty
         stream.uncommitted_events.should be_empty
       end
+      
+      it "should set is new flag to true" do
+        stream.should be_new_stream
+      end
     end  
       
     context "if there are commits" do
-      it "should populate stream with commits" do
-        commit1 = mock(:commit, :commit_sequence => 1, :events => [mock(:evt1), mock(:evt2)])
-        commit2 = mock(:commit, :commit_sequence => 2, :events => [mock(:evt1)])
-        commit3 = mock(:commit, :commit_sequence => 3, :events => [mock(:evt1), mock(:evt2), mock(:evt3)])
-        
+      let(:commit1) { mock(:commit, :commit_sequence => 1, :events => [mock(:evt1), mock(:evt2)]) }
+      let(:commit2) { mock(:commit, :commit_sequence => 2, :events => [mock(:evt1)]) }
+      let(:commit3) { mock(:commit, :commit_sequence => 3, :events => [mock(:evt1), mock(:evt2), mock(:evt3)]) }
+      
+      before(:each) do
         persistence_engine.stub(:get_from) { [commit1, commit2, commit3] }
+      end
+      
+      it "should populate stream with commits" do
         stream.stream_revision.should eql 6 #2 + 1 + 3
         stream.commit_sequence.should eql 3 #Number of commits
         stream.committed_events.should have(6).items
@@ -72,6 +82,10 @@ describe EventStore::EventStream do
         stream.committed_events[3].should be commit3.events[0]
         stream.committed_events[4].should be commit3.events[1]
         stream.committed_events[5].should be commit3.events[2]
+      end
+      
+      it "should set is new to false" do
+        stream.should_not be_new_stream
       end
     end
   end
@@ -153,6 +167,12 @@ describe EventStore::EventStream do
       
       commit = stream.commit_changes header1: "header-1", header2: "header-2"
       commit.headers.should eql header1: "header-1", header2: "header-2"
+    end
+    
+    it "should set is new to false" do
+      stream.add(mock("event-1"))
+      stream.commit_changes
+      stream.should_not be_new_stream
     end
   end
 end

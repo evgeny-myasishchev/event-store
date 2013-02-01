@@ -1,6 +1,12 @@
 module EventStore::Persistence
   #Abstract class that defines methods that are required to persist commits
   class PersistenceEngine
+    
+    # Returns true if the stream exists. Returns false otherwise.
+    def exists?(stream_id)
+      raise 'Not implemented'
+    end
+    
     #Gets the corresponding commits from the stream indicated with the identifier.
     #Returned commits are sorted in ascending order from older to newer.
     #If no commits are found then empty array returned.

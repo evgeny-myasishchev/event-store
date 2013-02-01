@@ -30,6 +30,11 @@ module EventStore::Persistence::Engines
       @initialized = false
     end
     
+    def exists?(stream_id)
+      ensure_initialized!
+      !@storage.where(stream_id: stream_id).empty?
+    end
+    
   	#Gets the corresponding commits from the stream indicated with the identifier.
   	#Returned commits are sorted in ascending order from older to newer.
   	#If no commits are found then empty array returned.

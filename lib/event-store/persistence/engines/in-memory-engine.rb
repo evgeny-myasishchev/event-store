@@ -5,6 +5,10 @@ module EventStore::Persistence::Engines
       @undispatched_store    = []
     end
     
+    def exists?(stream_id)
+      @streams_store.key?(stream_id)
+    end
+    
     def get_from(stream_id)
       stream_store(stream_id).sort do |left, right|
         left.commit_sequence <=> right.commit_sequence

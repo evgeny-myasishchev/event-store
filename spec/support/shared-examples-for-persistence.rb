@@ -159,4 +159,15 @@ shared_examples "generic-persistence-engine" do
       subject.get_undispatched_commits.should have(0).items
     end
   end
+  
+  describe "exists?" do
+    it "should return true if there are commits persisted for the stream" do
+      commit_all(subject, build_commit("stream-1", "commit-1"))
+      subject.exists?('stream-1').should be_true
+    end
+    
+    it "should return false if no persisted commits for the stream" do
+      subject.exists?('stream-1').should be_false
+    end
+  end
 end

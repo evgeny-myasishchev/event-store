@@ -2,6 +2,12 @@ require 'rubygems'
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __FILE__)
 require 'bundler/setup'
 
+logs_dir = File.expand_path('../../log', __FILE__)
+FileUtils.mkdir logs_dir unless File.exists? logs_dir
+
+db_dir = File.expand_path('../../db', __FILE__)
+FileUtils.mkdir db_dir unless File.exists? db_dir
+
 #Configure logging
 require 'log4r'
 require 'log4r/yamlconfigurator'

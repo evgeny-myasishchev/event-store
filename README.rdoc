@@ -1,4 +1,6 @@
-EventStore
-======================================================================
+== EventStore
+Ruby implementation of the event store. Inspired by NEventStore. Documentation is not available yet so please doc/sample.rb.
 
-Ruby version of the event store. Inspired by NEventStore. Documentation is not available yet so please doc/sample.rb
+=== Installation (Gemfile)
+
+  gem 'event-store', github: 'evgeny-myasishchev/event-store'

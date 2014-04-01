@@ -1,5 +1,5 @@
 == EventStore
-Ruby implementation of the event store. Inspired by NEventStore. Documentation is not available yet so please doc/sample.rb.
+Ruby implementation of the event store. Inspired by NEventStore. Documentation is not available yet so please see doc/sample.rb.
 
 === Installation (Gemfile)
 

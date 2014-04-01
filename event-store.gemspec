@@ -1,12 +1,12 @@
 Gem::Specification.new do |s|
-  s.name        = 'infora-event-store'
+  s.name        = 'event-store'
   s.version     = '0.0.4a'
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ['Evgeny Myasishchev', 'Vladimir Ikryanov']
-  s.email       = ['info@infora.com.ua']
+  s.authors     = ['Evgeny Myasishchev']
+  s.email       = ['evgeny.myasishchev@gmail.com']
   s.summary     = "Event store."
-  s.description = "Event store implementation. Inspired by https://github.com/joliver/EventStore."
-  s.homepage    = 'http://infora.com.ua'
+  s.description = "Event store implementation. Inspired by https://github.com/NEventStore/NEventStore."
+  s.homepage    = 'https://github.com/evgeny-myasishchev/event-store'
   s.files       = Dir["lib/**/*"]
   s.test_files  = Dir['spec/**/*']
   

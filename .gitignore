@@ -1,4 +1,5 @@
 spec/log/*.log*
 doc/db/*
 doc/log/*
+coverage
 Gemfile.lock

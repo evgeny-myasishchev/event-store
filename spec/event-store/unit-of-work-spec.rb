@@ -1,10 +1,10 @@
 require 'spec-helper'
 
 describe EventStore::UnitOfWork do
-  let(:persistence_engine) { mock(:persistence_engine) }
-  let(:event_store) { mock(:event_store, persistence_engine: persistence_engine) }
-  let(:dispatcher_hook) { mock(:dispatcher_hook) }
-  let(:deferred_dispatcher_hook) { mock(:deferred_dispatcher_hook) }
+  let(:persistence_engine) { double(:persistence_engine) }
+  let(:event_store) { double(:event_store, persistence_engine: persistence_engine) }
+  let(:dispatcher_hook) { double(:dispatcher_hook) }
+  let(:deferred_dispatcher_hook) { double(:deferred_dispatcher_hook) }
   
   subject { described_class.new event_store, dispatcher_hook }
   
@@ -16,7 +16,7 @@ describe EventStore::UnitOfWork do
   end
   
   describe "open_stream" do
-    let(:stream) { mock(:stream) }
+    let(:stream) { double(:stream) }
     
     before(:each) do
       EventStore::Hooks::DeferredDispatcherHook.should_receive(:new).with(dispatcher_hook).and_return(deferred_dispatcher_hook)
@@ -42,9 +42,9 @@ describe EventStore::UnitOfWork do
   end
   
   describe "commit_changes" do
-    let(:stream_1) { mock(:stream_1) }
-    let(:stream_2) { mock(:stream_2) }
-    let(:stream_3) { mock(:stream_3) }
+    let(:stream_1) { double(:stream_1) }
+    let(:stream_2) { double(:stream_2) }
+    let(:stream_3) { double(:stream_3) }
     
     
     before(:each) do

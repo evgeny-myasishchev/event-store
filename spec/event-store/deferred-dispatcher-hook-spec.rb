@@ -1,9 +1,9 @@
 require 'spec-helper'
 
 describe EventStore::Hooks::DeferredDispatcherHook do
-  let(:original_hook) { mock(:original_hook) }
-  let(:commit_1) { mock(:commit_1) }
-  let(:commit_2) { mock(:commit_2) }
+  let(:original_hook) { double(:original_hook) }
+  let(:commit_1) { double(:commit_1) }
+  let(:commit_2) { double(:commit_2) }
   subject { described_class.new(original_hook) }
   
   it "should remember each commit on post_commit stage and dispatch it to original hook on dispatch_deferred" do

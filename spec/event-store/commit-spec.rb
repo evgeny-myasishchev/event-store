@@ -28,7 +28,7 @@ describe EventStore::Commit do
   
   describe "build" do
     it "should create a new commit from provided stream events and headers" do
-      stream = mock(:stream, :stream_id => "some-stream-id", :commit_sequence => 102, :stream_revision => 23)
+      stream = double(:stream, :stream_id => "some-stream-id", :commit_sequence => 102, :stream_revision => 23)
       evt1 = new_event("evt1")
       evt2 = new_event("evt2")
       

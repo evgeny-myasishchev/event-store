@@ -1,7 +1,7 @@
 require 'spec-helper'
 
 describe EventStore::EventStream do
-  let(:persistence_engine) { mock("persistence-engine", :commit => nil, :get_from => []) }
+  let(:persistence_engine) { double("persistence-engine", :commit => nil, :get_from => []) }
   let(:stream) { described_class.new("fake-stream-id", persistence_engine) }
   
   describe "initialize" do
@@ -63,9 +63,9 @@ describe EventStore::EventStream do
     end  
       
     context "if there are commits" do
-      let(:commit1) { mock(:commit, :commit_sequence => 1, :events => [mock(:evt1), mock(:evt2)]) }
-      let(:commit2) { mock(:commit, :commit_sequence => 2, :events => [mock(:evt1)]) }
-      let(:commit3) { mock(:commit, :commit_sequence => 3, :events => [mock(:evt1), mock(:evt2), mock(:evt3)]) }
+      let(:commit1) { double(:commit, :commit_sequence => 1, :events => [double(:evt1), double(:evt2)]) }
+      let(:commit2) { double(:commit, :commit_sequence => 2, :events => [double(:evt1)]) }
+      let(:commit3) { double(:commit, :commit_sequence => 3, :events => [double(:evt1), double(:evt2), double(:evt3)]) }
       
       before(:each) do
         persistence_engine.stub(:get_from) { [commit1, commit2, commit3] }
@@ -92,10 +92,10 @@ describe EventStore::EventStream do
   
   describe "commit_changes" do
     it "should build commit and commit it with persistence engine" do
-      evt1 = mock("event-1"), evt2 = mock("event-2")
+      evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
-      attempt = mock(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
+      attempt = double(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
       EventStore::Commit.should_receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
       persistence_engine.should_receive(:commit).with(attempt)
@@ -110,8 +110,8 @@ describe EventStore::EventStream do
     end
     
     it "should populate stream with new events and remove them from uncommited" do
-      commit1 = mock(:commit, :commit_id => "commit-1", :commit_sequence => 1, :events => [mock(:evt1), mock(:evt2)])
-      commit2 = mock(:commit, :commit_id => "commit-2", :commit_sequence => 2, :events => [mock(:evt1)])
+      commit1 = double(:commit, :commit_id => "commit-1", :commit_sequence => 1, :events => [double(:evt1), double(:evt2)])
+      commit2 = double(:commit, :commit_id => "commit-2", :commit_sequence => 2, :events => [double(:evt1)])
       
       persistence_engine.stub(:get_from) { [commit1, commit2] }
       
@@ -121,12 +121,12 @@ describe EventStore::EventStream do
       stream.uncommitted_events.should be_empty
       stream.committed_events.length.should eql 3
       
-      evt1 = mock("event-1"), evt2 = mock("event-2")
+      evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
       stream.uncommitted_events.length.should eql 2
       
-      attempt = mock(:attempt, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
+      attempt = double(:attempt, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
       EventStore::Commit.stub(:build) { attempt }
       
       stream.commit_changes
@@ -139,7 +139,7 @@ describe EventStore::EventStream do
     end
     
     it "should return committed commit with events" do
-      evt1 = mock("event-1"), evt2 = mock("event-2")
+      evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
       commit = stream.commit_changes
@@ -149,11 +149,11 @@ describe EventStore::EventStream do
     end
     
     it "should invoke pipeline_hooks after commit" do
-      hook1   = mock(:hook1), hook2 = mock(:hook2)
+      hook1   = double(:hook1), hook2 = double(:hook2)
       stream = described_class.new(EventStore::Identity::generate, persistence_engine, :hooks => [hook1, hook2])
-      attempt = mock(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
+      attempt = double(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
       EventStore::Commit.stub(:build) { attempt }
-      stream.add(mock("event-1"))
+      stream.add(double("event-1"))
       
       hook1.should_receive(:post_commit).with(attempt)
       hook2.should_receive(:post_commit).with(attempt)
@@ -162,7 +162,7 @@ describe EventStore::EventStream do
     end
 
     it "should build commit with headers" do
-      evt1 = mock("event-1")
+      evt1 = double("event-1")
       stream.add(evt1)
       
       commit = stream.commit_changes header1: "header-1", header2: "header-2"
@@ -170,7 +170,7 @@ describe EventStore::EventStream do
     end
     
     it "should set is new to false" do
-      stream.add(mock("event-1"))
+      stream.add(double("event-1"))
       stream.commit_changes
       stream.should_not be_new_stream
     end

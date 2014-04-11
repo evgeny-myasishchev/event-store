@@ -1,14 +1,14 @@
 require 'spec-helper'
 
 describe EventStore::Base do
-  let(:persistence_engine) { mock(:persistence_engine) }
-  let(:dispatcher) { mock(:dispatcher) }
+  let(:persistence_engine) { double(:persistence_engine) }
+  let(:dispatcher) { double(:dispatcher) }
   let(:store) { described_class.new(persistence_engine, dispatcher) }
   
   describe "dispatch_undispatched" do
     it "should get all undispatched commits from persistence_engine, dispatch them and mark them as dispatched" do
-      commit1 = mock("commit-1", :commit_id => "commit-1")
-      commit2 = mock("commit-2", :commit_id => "commit-2")
+      commit1 = double("commit-1", :commit_id => "commit-1")
+      commit2 = double("commit-2", :commit_id => "commit-2")
       
       persistence_engine.should_receive(:get_undispatched_commits).and_return([commit1, commit2])
       dispatcher.should_receive(:dispatch).with(commit1)
@@ -29,7 +29,7 @@ describe EventStore::Base do
   
   describe "open_stream" do
     it "should initialize a new stream with persistence engine and dispatcher hook" do
-      mock_stream = mock(:stream)
+      mock_stream = double(:stream)
       EventStore::EventStream.should_receive(:new) do |stream_id, pe, options|
         stream_id.should eql "some-stream-id"
         pe.should be persistence_engine
@@ -51,7 +51,7 @@ describe EventStore::Base do
   end
   
   describe "begin_work" do
-    let(:work) { mock(:work, commit_changes: nil) }
+    let(:work) { double(:work, commit_changes: nil) }
     before(:each) do
       EventStore::UnitOfWork.should_receive(:new).with(store, store.dispatcher_hook).and_return(work)
     end

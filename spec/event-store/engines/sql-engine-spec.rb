@@ -76,8 +76,8 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it "should raise EngineNotInitialized error for all engine methods" do
       lambda { engine.get_from("some-stream-id") }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
       lambda { engine.get_undispatched_commits }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.mark_commit_as_dispatched(mock(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.commit(mock(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.mark_commit_as_dispatched(double(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      lambda { engine.commit(double(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
     end
   end
   

@@ -27,7 +27,7 @@ describe EventStore::Bootstrap do
     end
     
     it "should not dispatch_undispatched immediatelly" do
-      store = mock(:store)
+      store = double(:store)
       EventStore::Base.stub(:new) {store}
       store.should_not_receive(:dispatch_undispatched)
       described_class.bootstrap do |with|

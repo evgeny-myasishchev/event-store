@@ -1,9 +1,9 @@
 require 'spec-helper'
 
 describe EventStore::Hooks::DispatcherHook do
-  let(:commit) { mock(:commit, :commit_id => "commit-1") }
-  let(:dispatcher) { mock(:dispatcher) }
-  let(:persistence_engine) { mock(:persistence_engine) }
+  let(:commit) { double(:commit, :commit_id => "commit-1") }
+  let(:dispatcher) { double(:dispatcher) }
+  let(:persistence_engine) { double(:persistence_engine) }
   let(:hook) { described_class.new dispatcher, persistence_engine }
   
   describe "post_commit" do

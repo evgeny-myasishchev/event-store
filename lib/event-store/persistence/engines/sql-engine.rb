@@ -17,6 +17,7 @@ module EventStore::Persistence::Engines
     # See here: http://sequel.rubyforge.org/rdoc/files/doc/opening_databases_rdoc.html
     # 
     def initialize(connection_specification = {}, options = {})
+      raise ArgumentError.new 'Connection specification can not be nil' if connection_specification.nil?
       connection_specification = connection_specification.dup
       @options = {
         :table => :'event-store-commits',

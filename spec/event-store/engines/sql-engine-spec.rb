@@ -9,6 +9,12 @@ describe EventStore::Persistence::Engines::SqlEngine do
     engine
   }
   
+  describe "initialize" do
+    it "should raise error if connection specification is nil" do
+      lambda { described_class.new(nil) }.should raise_error(ArgumentError, 'Connection specification can not be nil')
+    end
+  end
+  
   describe "schema" do
     it "should have event-store-commits talbe created" do
       subject.connection.tables.should include :'event-store-commits'

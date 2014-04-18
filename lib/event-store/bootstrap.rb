@@ -26,6 +26,10 @@ module EventStore
       def log4r_logging
         logging(Logging::Log4rFactory)
       end
+      
+      def has_persistence_engine?
+        !@persistence_engine.nil?
+      end
 
       def in_memory_persistence
         @persistence_engine = Persistence::Engines::InMemoryEngine.new

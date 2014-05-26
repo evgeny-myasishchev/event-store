@@ -20,8 +20,9 @@ module EventStore::Persistence::Engines
       raise ArgumentError.new 'Connection specification can not be nil' if connection_specification.nil?
       connection_specification = connection_specification.dup
       @options = {
-        :table => :'event-store-commits',
-        :orm_log_level => :debug
+        table: :'event-store-commits',
+        orm_log_level: :debug,
+        serializer: self.class.default_serializer
       }.merge! options
       
       @connection = Sequel.connect connection_specification
@@ -82,8 +83,8 @@ module EventStore::Persistence::Engines
         commit_sequence: attempt.commit_sequence,
         stream_revision: attempt.stream_revision,
         commit_timestamp: attempt.commit_timestamp,
-        events: Marshal.dump(attempt.events),
-        headers: Marshal.dump(attempt.headers)
+        events: serializer.serialize(attempt.events),
+        headers: serializer.serialize(attempt.headers)
       })
       nil
     end
@@ -112,6 +113,14 @@ module EventStore::Persistence::Engines
       Log.warn "Purging event store..."
       @storage.delete
       nil
+    end
+    
+    def serializer
+      @options[:serializer]
+    end
+    
+    def self.default_serializer
+      EventStore::Persistence::Serializers::MarshalSerializer.new
     end
     
     private

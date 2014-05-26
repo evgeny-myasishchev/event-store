@@ -88,10 +88,14 @@ describe EventStore::Persistence::Engines::SqlEngine do
   end
   
   describe "commit" do
+    let(:attempt) { 
+      build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2")) do |a|
+        a[:headers] = {header1: 'value-1', header2: 'value-2'}
+      end
+    }
+    
     it "inserts the record into the database with dispatched flag set to false" do
-      attempt = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
       subject.commit attempt
-      
       table = subject.connection[:'event-store-commits']
       table.count.should eql 1
       commit = table.first
@@ -102,7 +106,18 @@ describe EventStore::Persistence::Engines::SqlEngine do
       #Comparing usec because it may come from the database with slightly different nsec
       commit[:commit_timestamp].usec.should eql attempt.commit_timestamp.usec
       commit[:has_been_dispatched].should be_false
-      Marshal.load(commit[:events]).should eql attempt.events
+    end
+    
+    it "uses the serializer to store events and headers" do
+      subject.serializer.should_receive(:serialize).with(attempt.events).and_call_original
+      subject.serializer.should_receive(:serialize).with(attempt.headers).and_call_original
+      subject.commit attempt
+      table = subject.connection[:'event-store-commits']
+      table.count.should eql 1
+      commit = table.first
+      serializer = described_class.default_serializer
+      serializer.deserialize(commit[:headers]).should eql attempt.headers
+      serializer.deserialize(commit[:events]).should eql attempt.events
     end
   end
   

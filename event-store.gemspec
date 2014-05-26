@@ -1,6 +1,8 @@
+require File.expand_path(File.join('..', 'lib', 'event-store', 'version'), __FILE__)
+
 Gem::Specification.new do |s|
   s.name        = 'event-store'
-  s.version     = '0.0.4a'
+  s.version     = EventStore.version
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Evgeny Myasishchev']
   s.email       = ['evgeny.myasishchev@gmail.com']

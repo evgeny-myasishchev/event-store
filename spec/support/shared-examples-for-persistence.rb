@@ -121,6 +121,29 @@ shared_examples "generic-persistence-engine" do
       actual2.events[1].should eql new_event("event-2")
       actual2.events[2].should eql new_event("event-3")
     end
+      
+    it "should persist headers" do
+      commit1 = build_commit("stream-1", "commit-1") do |c|
+        c[:headers] = {
+          "header1" => "value-1",
+          "header2" => "value-2",
+        }
+      end
+      commit2 = build_commit("stream-2", "commit-2", new_event("event-1")) do |c|
+        c[:headers] = {
+          "header3" => "value-3",
+          "header4" => "value-4",
+        }
+      end
+      
+      commit_all(subject, commit1, commit2)
+      
+      actual1 = subject.get_from("stream-1")[0]
+      actual1.headers.should eql commit1.headers
+      
+      actual2 = subject.get_from("stream-2")[0]
+      actual2.headers.should eql commit2.headers
+    end
   end
   
   describe "mark_commit_as_dispatched" do

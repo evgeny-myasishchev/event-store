@@ -19,6 +19,7 @@ end
 
 #Shared examples
 require 'support/shared-examples-for-persistence'
+require 'support/serializers-shared-examples'
 
 
 #Configure logging

@@ -33,4 +33,19 @@ module EventStore::Persistence::Serializers
       return JSON
     end
   end
+  
+  class YamlSerializer < AbstractSerializer
+    def serialize(object)
+      self.class.serializer.dump(object)
+    end
+    
+    def deserialize(data)
+      self.class.serializer.load(data)
+    end
+    
+    def self.serializer
+      require 'jaml' unless defined?(YAML)
+      return YAML
+    end
+  end
 end

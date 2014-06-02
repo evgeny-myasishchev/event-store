@@ -26,4 +26,14 @@ describe EventStore::EventMessage do
       left.should_not eql right
     end
   end
+  
+  describe "json serialization" do
+    it "should serialize headers and the body to json" do
+      the_event = described_class.new({'body' => 'body1'}, {'header1' => 'header-1', 'header2' => 'header-2'})
+      json = the_event.to_json
+      actual = JSON.load json
+      actual.should be_instance_of(described_class)
+      actual.should eql the_event
+    end
+  end
 end

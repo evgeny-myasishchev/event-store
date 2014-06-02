@@ -12,6 +12,7 @@ require 'bundler/setup'
 gem 'rspec'
 require 'rspec'
 require 'event-store'
+require 'json'
 
 module Support
   autoload :CommitsHelper, 'support/commits-helper'

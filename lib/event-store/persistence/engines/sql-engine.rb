@@ -119,8 +119,12 @@ module EventStore::Persistence::Engines
       @options[:serializer]
     end
     
+    def serializer=(value)
+      @options[:serializer] = value
+    end
+    
     def self.default_serializer
-      EventStore::Persistence::Serializers::MarshalSerializer.new
+      EventStore::Persistence::Serializers::YamlSerializer.new
     end
     
     private
@@ -138,8 +142,8 @@ module EventStore::Persistence::Engines
           commit_sequence: commit_hash[:commit_sequence],
           stream_revision: commit_hash[:stream_revision],
           commit_timestamp: commit_hash[:commit_timestamp].utc,
-          events: Marshal.load(commit_hash[:events]),
-          headers: Marshal.load(commit_hash[:headers])
+          events: serializer.deserialize(commit_hash[:events]),
+          headers: serializer.deserialize(commit_hash[:headers])
       end
       
       def prepare_statements storage

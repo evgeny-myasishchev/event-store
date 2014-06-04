@@ -13,6 +13,10 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it "should raise error if connection specification is nil" do
       lambda { described_class.new(nil) }.should raise_error(ArgumentError, 'Connection specification can not be nil')
     end
+    
+    it "should have YamlSerializer as a default serializer" do
+      subject.serializer.should be_instance_of(EventStore::Persistence::Serializers::YamlSerializer)
+    end
   end
   
   describe "schema" do

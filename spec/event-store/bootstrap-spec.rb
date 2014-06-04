@@ -46,5 +46,50 @@ describe EventStore::Bootstrap do
         with.synchorous_dispatcher {}
       end
     end
+    
+    describe "sql_persistence" do
+      let(:engine_class) { EventStore::Persistence::Engines::SqlEngine }
+      let(:connection_spec) { {adapter: 'sqlite', database: ':memory:'} }
+      let(:options) { {opt1: 'value1'} }
+      
+      it "should create and init sql engine" do
+        sql_engine = double(:sql_engine)
+        engine_class.should_receive(:new).with(connection_spec, options).and_return(sql_engine)
+        sql_engine.should_receive(:init_engine)
+        described_class.bootstrap do |with|
+          engine_init = with.sql_persistence(connection_spec, options)
+          engine_init.should be_instance_of(EventStore::Bootstrap::SqlEngineInit)
+          engine_init.engine.should be sql_engine
+          with.synchorous_dispatcher {}
+        end
+      end
+      
+      describe EventStore::Bootstrap::SqlEngineInit do
+        let(:subject) { @subject }
+        let(:engine) { subject.engine }
+        let(:serializers) { EventStore::Persistence::Serializers }
+        before(:each) do
+          described_class.bootstrap do |with|
+            @subject = with.sql_persistence(connection_spec, options)
+            with.synchorous_dispatcher {}
+          end
+        end
+        
+        it "should assign json serializer when using_json_serializer" do
+          subject.using_json_serializer.should be subject
+          engine.serializer.should be_instance_of(serializers::JsonSerializer)
+        end
+                
+        it "should assign marshal serializer when using_marshal_serializer" do
+          subject.using_marshal_serializer.should be subject
+          engine.serializer.should be_instance_of(serializers::MarshalSerializer)
+        end
+        
+        it "should assign yaml serializer when using_yaml_serializer" do
+          subject.using_yaml_serializer.should be subject
+          engine.serializer.should be_instance_of(serializers::YamlSerializer)
+        end
+      end
+    end
   end
 end

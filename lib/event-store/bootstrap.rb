@@ -38,12 +38,34 @@ module EventStore
       def sql_persistence connection_specification, options = {}
         @persistence_engine = Persistence::Engines::SqlEngine.new connection_specification, options
         @persistence_engine.init_engine
-        @persistence_engine
+        SqlEngineInit.new @persistence_engine
       end
 
       # &receiver should accept single argument the commit to dispatch.
       def synchorous_dispatcher(&receiver)
         @dispatcher = Dispatcher::SynchronousDispatcher.new(&receiver)
+      end
+    end
+    
+    class SqlEngineInit
+      attr_reader :engine
+      def initialize(engine)
+        @engine = engine
+      end
+      
+      def using_marshal_serializer
+        @engine.serializer = Persistence::Serializers::MarshalSerializer.new
+        self
+      end
+      
+      def using_json_serializer
+        @engine.serializer = Persistence::Serializers::JsonSerializer.new
+        self
+      end
+      
+      def using_yaml_serializer
+        @engine.serializer = Persistence::Serializers::YamlSerializer.new
+        self
       end
     end
   end

@@ -54,16 +54,16 @@ describe "Integration - EventStore - Unit Of Work" do
         subject.commit_changes
 
         stream_1 = event_store.open_stream('stream-1')
-        stream_1.committed_events.should have(2).items
+        stream_1.committed_events.length.should eql(2)
         stream_1.committed_events[0].should eql evt11
         stream_1.committed_events[1].should eql evt12
 
         stream_2 = event_store.open_stream('stream-2')
-        stream_2.committed_events.should have(2).items
+        stream_2.committed_events.length.should eql(2)
         stream_2.committed_events[0].should eql evt21
         stream_2.committed_events[1].should eql evt22
 
-        dispatched_events.should have(4).items
+        dispatched_events.length.should eql(4)
         dispatched_events[0].should eql evt11
         dispatched_events[1].should eql evt12
         dispatched_events[2].should eql evt21
@@ -84,12 +84,12 @@ describe "Integration - EventStore - Unit Of Work" do
         lambda { subject.commit_changes }.should raise_error("Dispatch failed")
         
         stream_1 = event_store.open_stream('stream-1')
-        stream_1.committed_events.should have(2).items
+        stream_1.committed_events.length.should eql(2)
         stream_1.committed_events[0].should eql evt11
         stream_1.committed_events[1].should eql evt12
 
         stream_2 = event_store.open_stream('stream-2')
-        stream_2.committed_events.should have(2).items
+        stream_2.committed_events.length.should eql(2)
         stream_2.committed_events[0].should eql evt21
         
         dispatched_events.should be_empty

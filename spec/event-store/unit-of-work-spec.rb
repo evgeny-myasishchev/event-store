@@ -11,7 +11,7 @@ describe EventStore::UnitOfWork do
   describe "stream_exists?" do
     it "should use event store to check if it exists" do
       event_store.should_receive(:stream_exists?).with('stream-3902').and_return(true)
-      subject.stream_exists?('stream-3902').should be_true
+      subject.stream_exists?('stream-3902').should be_truthy
     end
   end
   

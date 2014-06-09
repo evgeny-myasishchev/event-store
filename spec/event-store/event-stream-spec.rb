@@ -74,7 +74,7 @@ describe EventStore::EventStream do
       it "should populate stream with commits" do
         stream.stream_revision.should eql 6 #2 + 1 + 3
         stream.commit_sequence.should eql 3 #Number of commits
-        stream.committed_events.should have(6).items
+        stream.committed_events.length.should eql(6)
         stream.uncommitted_events.should be_empty
         stream.committed_events[0].should be commit1.events[0]
         stream.committed_events[1].should be commit1.events[1]
@@ -143,7 +143,7 @@ describe EventStore::EventStream do
       stream.add(evt1).add(evt2)
       
       commit = stream.commit_changes
-      commit.events.should have(2).items
+      commit.events.length.should eql(2)
       commit.events.should include evt1
       commit.events.should include evt2
     end

@@ -23,7 +23,7 @@ describe EventStore::Base do
   describe "stream_exists?" do
     it "should use persistence engine to check if the stream exists" do
       persistence_engine.should_receive(:exists?).with('stream-992').and_return(true)
-      store.stream_exists?('stream-992').should be_true
+      store.stream_exists?('stream-992').should be_truthy
     end
   end
   
@@ -33,7 +33,7 @@ describe EventStore::Base do
       EventStore::EventStream.should_receive(:new) do |stream_id, pe, options|
         stream_id.should eql "some-stream-id"
         pe.should be persistence_engine
-        options[:hooks].should have(1).elements
+        options[:hooks].length.should eql(1)
         options[:hooks][0].should be_instance_of(EventStore::Hooks::DispatcherHook)
         options[:hooks][0].dispatcher.should be dispatcher
         options[:hooks][0].persistence_engine.should be persistence_engine

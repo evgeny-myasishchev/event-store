@@ -39,7 +39,7 @@ describe EventStore::Commit do
       commit.commit_id.should eql "new-commit-id"
       commit.commit_sequence.should eql 103
       commit.stream_revision.should eql 25
-      commit.events.should have(2).items
+      commit.events.length.should eql(2)
       commit.events[0].should eql evt1
       commit.events[1].should eql evt2
       commit.headers.should eql(header1: "header 1", header2: "header 2")

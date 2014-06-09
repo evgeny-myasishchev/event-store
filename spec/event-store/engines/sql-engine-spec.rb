@@ -34,50 +34,50 @@ describe EventStore::Persistence::Engines::SqlEngine do
       columns = subject.connection.schema(:'event-store-commits')
       
       check_column(:stream_id, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :string
       end
       
       check_column(:commit_id, columns) do |column|
-        column[:allow_null].should be_false
-        column[:primary_key].should be_true
+        column[:allow_null].should be_falsey
+        column[:primary_key].should be_truthy
         column[:type].should eql :string
       end
             
       check_column(:commit_sequence, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :integer
       end
 
       check_column(:stream_revision, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :integer
       end
       
       check_column(:commit_timestamp, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :datetime
       end
       
       check_column(:has_been_dispatched, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :boolean
       end
 
       check_column(:headers, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :blob
       end
       
       check_column(:events, columns) do |column|
-        column[:allow_null].should be_false
+        column[:allow_null].should be_falsey
         column[:type].should eql :blob
       end
     end
     
     it "stream_id column should be indexed" do
       indices = subject.connection.indexes(:'event-store-commits')
-      indices.key?(:"event-store-commits_stream_id_index").should be_true
+      indices.key?(:"event-store-commits_stream_id_index").should be_truthy
       indices[:"event-store-commits_stream_id_index"][:columns].should eql [:stream_id]
     end
   end
@@ -109,7 +109,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       commit[:stream_revision].should eql attempt.stream_revision
       #Comparing usec because it may come from the database with slightly different nsec
       commit[:commit_timestamp].usec.should eql attempt.commit_timestamp.usec
-      commit[:has_been_dispatched].should be_false
+      commit[:has_been_dispatched].should be_falsey
     end
     
     it "uses the serializer to store events and headers" do
@@ -132,7 +132,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       subject.mark_commit_as_dispatched attempt
       
       commit = subject.connection[:'event-store-commits'].first
-      commit[:has_been_dispatched].should be_true
+      commit[:has_been_dispatched].should be_truthy
     end
   end
   

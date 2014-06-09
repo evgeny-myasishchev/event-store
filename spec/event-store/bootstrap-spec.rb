@@ -69,7 +69,7 @@ describe EventStore::Bootstrap do
         let(:engine) { subject.engine }
         let(:serializers) { EventStore::Persistence::Serializers }
         before(:each) do
-          described_class.bootstrap do |with|
+          EventStore::Bootstrap.bootstrap do |with|
             @subject = with.sql_persistence(connection_spec, options)
             with.synchorous_dispatcher {}
           end

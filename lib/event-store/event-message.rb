@@ -16,6 +16,7 @@ class EventStore::EventMessage
   end
   
   def ==(other)
+    return false unless other.is_a?(self.class)
     @body == other.body && @headers == other.headers
   end
   

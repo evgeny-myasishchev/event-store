@@ -2,6 +2,12 @@ require 'spec-helper'
 
 describe EventStore::EventMessage do
   describe "eql? and ==" do
+    it "should return false if target is not event message" do
+      left = described_class.new "event-1", :header1 => "value1", :header2 => "value2"
+      expect(left).not_to eql(test: 'value')
+      expect(left == {test: 'value'}).to be_falsy
+    end
+    
     it "should return true if bodies and headers are eql" do
       left  = described_class.new "event-1", :header1 => "value1", :header2 => "value2"
       right = described_class.new "event-1", :header1 => "value1", :header2 => "value2"

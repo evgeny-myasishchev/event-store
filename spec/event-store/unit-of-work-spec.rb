@@ -10,8 +10,8 @@ describe EventStore::UnitOfWork do
   
   describe "stream_exists?" do
     it "should use event store to check if it exists" do
-      event_store.should_receive(:stream_exists?).with('stream-3902').and_return(true)
-      subject.stream_exists?('stream-3902').should be_truthy
+      expect(event_store).to receive(:stream_exists?).with('stream-3902').and_return(true)
+      expect(subject.stream_exists?('stream-3902')).to be_truthy
     end
   end
   
@@ -19,25 +19,25 @@ describe EventStore::UnitOfWork do
     let(:stream) { double(:stream) }
     
     before(:each) do
-      EventStore::Hooks::DeferredDispatcherHook.should_receive(:new).with(dispatcher_hook).and_return(deferred_dispatcher_hook)
+      expect(EventStore::Hooks::DeferredDispatcherHook).to receive(:new).with(dispatcher_hook).and_return(deferred_dispatcher_hook)
     end
     
     it "should return new stream instance with deferred_dispatcher_hook" do
-      EventStore::EventStream.should_receive(:new) do |stream_id, persistence_engine, options|
-        stream_id.should eql 'stream-993'
-        persistence_engine.should be persistence_engine
-        options.should include(:hooks)
-        options[:hooks][0].should be deferred_dispatcher_hook
+      expect(EventStore::EventStream).to receive(:new) do |stream_id, persistence_engine, options|
+        expect(stream_id).to eql 'stream-993'
+        expect(persistence_engine).to be persistence_engine
+        expect(options).to include(:hooks)
+        expect(options[:hooks][0]).to be deferred_dispatcher_hook
         stream
       end
       
-      subject.open_stream('stream-993').should be stream
+      expect(subject.open_stream('stream-993')).to be stream
     end
     
     it "should return same stream instance if already opened" do
-      EventStore::EventStream.stub(:new).once.and_return(stream)
-      subject.open_stream('stream-993').should be stream
-      subject.open_stream('stream-993').should be stream
+      allow(EventStore::EventStream).to receive(:new).once.and_return(stream)
+      expect(subject.open_stream('stream-993')).to be stream
+      expect(subject.open_stream('stream-993')).to be stream
     end
   end
   
@@ -48,10 +48,10 @@ describe EventStore::UnitOfWork do
     
     
     before(:each) do
-      EventStore::Hooks::DeferredDispatcherHook.stub(:new).and_return(deferred_dispatcher_hook)
-      EventStore::EventStream.should_receive(:new).with('stream-1', anything, anything).and_return(stream_1)
-      EventStore::EventStream.should_receive(:new).with('stream-2', anything, anything).and_return(stream_2)
-      EventStore::EventStream.should_receive(:new).with('stream-3', anything, anything).and_return(stream_3)
+      allow(EventStore::Hooks::DeferredDispatcherHook).to receive(:new).and_return(deferred_dispatcher_hook)
+      expect(EventStore::EventStream).to receive(:new).with('stream-1', anything, anything).and_return(stream_1)
+      expect(EventStore::EventStream).to receive(:new).with('stream-2', anything, anything).and_return(stream_2)
+      expect(EventStore::EventStream).to receive(:new).with('stream-3', anything, anything).and_return(stream_3)
     end
     
     it "should commit_changes of each opened stream and then dispatch deferred commits" do
@@ -60,10 +60,10 @@ describe EventStore::UnitOfWork do
       subject.open_stream('stream-2')
       subject.open_stream('stream-3')
       
-      stream_1.should_receive(:commit_changes).with(headers)
-      stream_2.should_receive(:commit_changes).with(headers)
-      stream_3.should_receive(:commit_changes).with(headers)
-      deferred_dispatcher_hook.should_receive(:dispatch_deferred)
+      expect(stream_1).to receive(:commit_changes).with(headers)
+      expect(stream_2).to receive(:commit_changes).with(headers)
+      expect(stream_3).to receive(:commit_changes).with(headers)
+      expect(deferred_dispatcher_hook).to receive(:dispatch_deferred)
       subject.commit_changes(headers)
     end
   end

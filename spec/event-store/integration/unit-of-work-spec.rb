@@ -54,20 +54,20 @@ describe "Integration - EventStore - Unit Of Work" do
         subject.commit_changes
 
         stream_1 = event_store.open_stream('stream-1')
-        stream_1.committed_events.length.should eql(2)
-        stream_1.committed_events[0].should eql evt11
-        stream_1.committed_events[1].should eql evt12
+        expect(stream_1.committed_events.length).to eql(2)
+        expect(stream_1.committed_events[0]).to eql evt11
+        expect(stream_1.committed_events[1]).to eql evt12
 
         stream_2 = event_store.open_stream('stream-2')
-        stream_2.committed_events.length.should eql(2)
-        stream_2.committed_events[0].should eql evt21
-        stream_2.committed_events[1].should eql evt22
+        expect(stream_2.committed_events.length).to eql(2)
+        expect(stream_2.committed_events[0]).to eql evt21
+        expect(stream_2.committed_events[1]).to eql evt22
 
-        dispatched_events.length.should eql(4)
-        dispatched_events[0].should eql evt11
-        dispatched_events[1].should eql evt12
-        dispatched_events[2].should eql evt21
-        dispatched_events[3].should eql evt22
+        expect(dispatched_events.length).to eql(4)
+        expect(dispatched_events[0]).to eql evt11
+        expect(dispatched_events[1]).to eql evt12
+        expect(dispatched_events[2]).to eql evt21
+        expect(dispatched_events[3]).to eql evt22
       end
       
       it "should commit all changes even if dispatch fails" do
@@ -81,18 +81,18 @@ describe "Integration - EventStore - Unit Of Work" do
         stream_2.add evt21
         stream_2.add evt22
 
-        lambda { subject.commit_changes }.should raise_error("Dispatch failed")
+        expect(lambda { subject.commit_changes }).to raise_error("Dispatch failed")
         
         stream_1 = event_store.open_stream('stream-1')
-        stream_1.committed_events.length.should eql(2)
-        stream_1.committed_events[0].should eql evt11
-        stream_1.committed_events[1].should eql evt12
+        expect(stream_1.committed_events.length).to eql(2)
+        expect(stream_1.committed_events[0]).to eql evt11
+        expect(stream_1.committed_events[1]).to eql evt12
 
         stream_2 = event_store.open_stream('stream-2')
-        stream_2.committed_events.length.should eql(2)
-        stream_2.committed_events[0].should eql evt21
+        expect(stream_2.committed_events.length).to eql(2)
+        expect(stream_2.committed_events[0]).to eql evt21
         
-        dispatched_events.should be_empty
+        expect(dispatched_events).to be_empty
       end
     end
   end

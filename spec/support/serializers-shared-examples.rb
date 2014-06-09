@@ -29,15 +29,15 @@ shared_examples "a serializer" do
   describe "serialize" do
     it "should dump the object" do
       actual = do_deserialize subject.serialize(target_object)
-      actual.attributes.should eql target_object.attributes
+      expect(actual.attributes).to eql target_object.attributes
     end
   end
   
   describe "deserialize" do
     it "should load the serialized object" do
       actual = subject.deserialize do_serialize(target_object)
-      actual.should be_instance_of(target_class)
-      actual.attributes.should eql target_object.attributes
+      expect(actual).to be_instance_of(target_class)
+      expect(actual.attributes).to eql target_object.attributes
     end
   end
 end

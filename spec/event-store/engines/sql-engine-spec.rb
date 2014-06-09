@@ -11,22 +11,22 @@ describe EventStore::Persistence::Engines::SqlEngine do
   
   describe "initialize" do
     it "should raise error if connection specification is nil" do
-      lambda { described_class.new(nil) }.should raise_error(ArgumentError, 'Connection specification can not be nil')
+      expect(lambda { described_class.new(nil) }).to raise_error(ArgumentError, 'Connection specification can not be nil')
     end
     
     it "should have YamlSerializer as a default serializer" do
-      subject.serializer.should be_instance_of(EventStore::Persistence::Serializers::YamlSerializer)
+      expect(subject.serializer).to be_instance_of(EventStore::Persistence::Serializers::YamlSerializer)
     end
   end
   
   describe "schema" do
     it "should have event-store-commits talbe created" do
-      subject.connection.tables.should include :'event-store-commits'
+      expect(subject.connection.tables).to include :'event-store-commits'
     end
     
     def check_column(name, columns, &block)
       col = columns.detect { |c| c[0] == name }
-      col.should_not be_nil, "Column '#{name}' not found."
+      expect(col).not_to be_nil, "Column '#{name}' not found."
       yield(col[1])
     end
     
@@ -34,60 +34,60 @@ describe EventStore::Persistence::Engines::SqlEngine do
       columns = subject.connection.schema(:'event-store-commits')
       
       check_column(:stream_id, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :string
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :string
       end
       
       check_column(:commit_id, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:primary_key].should be_truthy
-        column[:type].should eql :string
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:primary_key]).to be_truthy
+        expect(column[:type]).to eql :string
       end
             
       check_column(:commit_sequence, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :integer
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :integer
       end
 
       check_column(:stream_revision, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :integer
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :integer
       end
       
       check_column(:commit_timestamp, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :datetime
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :datetime
       end
       
       check_column(:has_been_dispatched, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :boolean
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :boolean
       end
 
       check_column(:headers, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :blob
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :blob
       end
       
       check_column(:events, columns) do |column|
-        column[:allow_null].should be_falsey
-        column[:type].should eql :blob
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :blob
       end
     end
     
     it "stream_id column should be indexed" do
       indices = subject.connection.indexes(:'event-store-commits')
-      indices.key?(:"event-store-commits_stream_id_index").should be_truthy
-      indices[:"event-store-commits_stream_id_index"][:columns].should eql [:stream_id]
+      expect(indices.key?(:"event-store-commits_stream_id_index")).to be_truthy
+      expect(indices[:"event-store-commits_stream_id_index"][:columns]).to eql [:stream_id]
     end
   end
   
   context "not initialized" do
     it "should raise EngineNotInitialized error for all engine methods" do
-      lambda { engine.get_from("some-stream-id") }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.get_undispatched_commits }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.mark_commit_as_dispatched(double(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      lambda { engine.commit(double(:commit)) }.should raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      expect(lambda { engine.get_from("some-stream-id") }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      expect(lambda { engine.get_undispatched_commits }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      expect(lambda { engine.mark_commit_as_dispatched(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      expect(lambda { engine.commit(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
     end
   end
   
@@ -101,27 +101,27 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it "inserts the record into the database with dispatched flag set to false" do
       subject.commit attempt
       table = subject.connection[:'event-store-commits']
-      table.count.should eql 1
+      expect(table.count).to eql 1
       commit = table.first
-      commit[:stream_id].should eql attempt.stream_id
-      commit[:commit_id].should eql attempt.commit_id
-      commit[:commit_sequence].should eql attempt.commit_sequence
-      commit[:stream_revision].should eql attempt.stream_revision
+      expect(commit[:stream_id]).to eql attempt.stream_id
+      expect(commit[:commit_id]).to eql attempt.commit_id
+      expect(commit[:commit_sequence]).to eql attempt.commit_sequence
+      expect(commit[:stream_revision]).to eql attempt.stream_revision
       #Comparing usec because it may come from the database with slightly different nsec
-      commit[:commit_timestamp].usec.should eql attempt.commit_timestamp.usec
-      commit[:has_been_dispatched].should be_falsey
+      expect(commit[:commit_timestamp].usec).to eql attempt.commit_timestamp.usec
+      expect(commit[:has_been_dispatched]).to be_falsey
     end
     
     it "uses the serializer to store events and headers" do
-      subject.serializer.should_receive(:serialize).with(attempt.events).and_call_original
-      subject.serializer.should_receive(:serialize).with(attempt.headers).and_call_original
+      expect(subject.serializer).to receive(:serialize).with(attempt.events).and_call_original
+      expect(subject.serializer).to receive(:serialize).with(attempt.headers).and_call_original
       subject.commit attempt
       table = subject.connection[:'event-store-commits']
-      table.count.should eql 1
+      expect(table.count).to eql 1
       commit = table.first
       serializer = described_class.default_serializer
-      serializer.deserialize(commit[:headers]).should eql attempt.headers
-      serializer.deserialize(commit[:events]).should eql attempt.events
+      expect(serializer.deserialize(commit[:headers])).to eql attempt.headers
+      expect(serializer.deserialize(commit[:events])).to eql attempt.events
     end
   end
   
@@ -132,7 +132,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       subject.mark_commit_as_dispatched attempt
       
       commit = subject.connection[:'event-store-commits'].first
-      commit[:has_been_dispatched].should be_truthy
+      expect(commit[:has_been_dispatched]).to be_truthy
     end
   end
   
@@ -143,7 +143,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       commit_all(subject, commit1, commit2)
       subject.purge
       table = subject.connection[:'event-store-commits']
-      table.count.should eql 0
+      expect(table.count).to eql 0
     end
   end
   

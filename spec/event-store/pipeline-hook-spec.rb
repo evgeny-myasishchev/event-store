@@ -15,7 +15,7 @@ describe EventStore::Hooks::PipelineHook do
     it "should call post_commit lambda" do
       commit = double(:commit)
       post_commit_hook = double(:post_commit_hook)
-      post_commit_hook.should_receive(:call).with(commit)
+      expect(post_commit_hook).to receive(:call).with(commit)
       hook = described_class.new :post_commit => post_commit_hook
       hook.post_commit commit
     end

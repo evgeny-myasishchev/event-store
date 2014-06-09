@@ -12,14 +12,14 @@ shared_examples "generic-persistence-engine" do
     commit_all(subject, commit11, commit12, commit21, commit22)
 
     stream1_commits = subject.get_from("stream-1")
-    stream1_commits.length.should eql(2)
-    stream1_commits[0].should eql commit11
-    stream1_commits[1].should eql commit12
+    expect(stream1_commits.length).to eql(2)
+    expect(stream1_commits[0]).to eql commit11
+    expect(stream1_commits[1]).to eql commit12
 
     stream2_commits = subject.get_from("stream-2")
-    stream2_commits.length.should eql(2)
-    stream2_commits[0].should eql commit21
-    stream2_commits[1].should eql commit22
+    expect(stream2_commits.length).to eql(2)
+    expect(stream2_commits[0]).to eql commit21
+    expect(stream2_commits[1]).to eql commit22
   end
 
   it "should persist commits as undispatched for all streams" do
@@ -30,10 +30,10 @@ shared_examples "generic-persistence-engine" do
     commit_all(subject, commit1, commit2, commit3)
 
     undispatched = subject.get_undispatched_commits
-    undispatched.length.should eql(3)
-    undispatched[0].should eql commit1
-    undispatched[1].should eql commit2
-    undispatched[2].should eql commit3
+    expect(undispatched.length).to eql(3)
+    expect(undispatched[0]).to eql commit1
+    expect(undispatched[1]).to eql commit2
+    expect(undispatched[2]).to eql commit3
   end
   
   describe "get_from" do
@@ -45,9 +45,9 @@ shared_examples "generic-persistence-engine" do
       commit_all(subject, commit3, commit1, commit2)
       
       stream_commits = subject.get_from("stream-1")
-      stream_commits[0].should eql commit1
-      stream_commits[1].should eql commit2
-      stream_commits[2].should eql commit3
+      expect(stream_commits[0]).to eql commit1
+      expect(stream_commits[1]).to eql commit2
+      expect(stream_commits[2]).to eql commit3
     end
   end
   
@@ -69,14 +69,14 @@ shared_examples "generic-persistence-engine" do
         all_commits << commit
       end
       
-      all_commits.length.should eql(7)
-      all_commits[0].should eql commit11
-      all_commits[1].should eql commit12
-      all_commits[2].should eql commit13
-      all_commits[3].should eql commit21
-      all_commits[4].should eql commit22
-      all_commits[5].should eql commit31
-      all_commits[6].should eql commit32
+      expect(all_commits.length).to eql(7)
+      expect(all_commits[0]).to eql commit11
+      expect(all_commits[1]).to eql commit12
+      expect(all_commits[2]).to eql commit13
+      expect(all_commits[3]).to eql commit21
+      expect(all_commits[4]).to eql commit22
+      expect(all_commits[5]).to eql commit31
+      expect(all_commits[6]).to eql commit32
     end
   end
   
@@ -94,12 +94,12 @@ shared_examples "generic-persistence-engine" do
       commit_all(subject, commit23, commit21, commit22)
       
       stream_commits = subject.get_undispatched_commits
-      stream_commits[0].should eql commit11
-      stream_commits[1].should eql commit12
-      stream_commits[2].should eql commit13
-      stream_commits[3].should eql commit21
-      stream_commits[4].should eql commit22
-      stream_commits[5].should eql commit23
+      expect(stream_commits[0]).to eql commit11
+      expect(stream_commits[1]).to eql commit12
+      expect(stream_commits[2]).to eql commit13
+      expect(stream_commits[3]).to eql commit21
+      expect(stream_commits[4]).to eql commit22
+      expect(stream_commits[5]).to eql commit23
     end
   end
   
@@ -111,15 +111,15 @@ shared_examples "generic-persistence-engine" do
       commit_all(subject, commit1, commit2)
       
       actual1 = subject.get_from("stream-1")[0]
-      actual1.events.length.should eql(2)
-      actual1.events[0].should eql new_event("event-1")
-      actual1.events[1].should eql new_event("event-2")
+      expect(actual1.events.length).to eql(2)
+      expect(actual1.events[0]).to eql new_event("event-1")
+      expect(actual1.events[1]).to eql new_event("event-2")
       
       actual2 = subject.get_from("stream-2")[0]
-      actual2.events.length.should eql(3)
-      actual2.events[0].should eql new_event("event-1")
-      actual2.events[1].should eql new_event("event-2")
-      actual2.events[2].should eql new_event("event-3")
+      expect(actual2.events.length).to eql(3)
+      expect(actual2.events[0]).to eql new_event("event-1")
+      expect(actual2.events[1]).to eql new_event("event-2")
+      expect(actual2.events[2]).to eql new_event("event-3")
     end
       
     it "should persist headers" do
@@ -139,10 +139,10 @@ shared_examples "generic-persistence-engine" do
       commit_all(subject, commit1, commit2)
       
       actual1 = subject.get_from("stream-1")[0]
-      actual1.headers.should eql commit1.headers
+      expect(actual1.headers).to eql commit1.headers
       
       actual2 = subject.get_from("stream-2")[0]
-      actual2.headers.should eql commit2.headers
+      expect(actual2.headers).to eql commit2.headers
     end
   end
   
@@ -154,13 +154,13 @@ shared_examples "generic-persistence-engine" do
       commit_all(subject, commit1, commit2)
       
       #Just make sure they are initially undispatched
-      subject.get_undispatched_commits.length.should eql(2)
+      expect(subject.get_undispatched_commits.length).to eql(2)
       
       subject.mark_commit_as_dispatched(commit1)
       
       undispatched = subject.get_undispatched_commits
-      undispatched.length.should eql(1)
-      undispatched.should include commit2
+      expect(undispatched.length).to eql(1)
+      expect(undispatched).to include commit2
     end
   end  
   
@@ -174,23 +174,23 @@ shared_examples "generic-persistence-engine" do
     end
     
     it "should remove all commits for all streams" do
-      subject.get_from("stream-1").length.should eql(0)
-      subject.get_from("stream-0").length.should eql(0)
+      expect(subject.get_from("stream-1").length).to eql(0)
+      expect(subject.get_from("stream-0").length).to eql(0)
     end
     
     it "should also remove all undispatched commits" do
-      subject.get_undispatched_commits.length.should eql(0)
+      expect(subject.get_undispatched_commits.length).to eql(0)
     end
   end
   
   describe "exists?" do
     it "should return true if there are commits persisted for the stream" do
       commit_all(subject, build_commit("stream-1", "commit-1"))
-      subject.exists?('stream-1').should be_truthy
+      expect(subject.exists?('stream-1')).to be_truthy
     end
     
     it "should return false if no persisted commits for the stream" do
-      subject.exists?('stream-1').should be_falsey
+      expect(subject.exists?('stream-1')).to be_falsey
     end
   end
 end

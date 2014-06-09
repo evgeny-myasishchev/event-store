@@ -10,8 +10,8 @@ describe EventStore::Hooks::DeferredDispatcherHook do
     subject.post_commit(commit_1)
     subject.post_commit(commit_2)
     
-    original_hook.should_receive(:post_commit).with(commit_1)
-    original_hook.should_receive(:post_commit).with(commit_2)
+    expect(original_hook).to receive(:post_commit).with(commit_1)
+    expect(original_hook).to receive(:post_commit).with(commit_2)
     
     subject.dispatch_deferred
   end

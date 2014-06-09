@@ -8,16 +8,16 @@ describe EventStore::Hooks::DispatcherHook do
   
   describe "post_commit" do
     it "should dispatch commit and mark it as dispatched on success" do
-      dispatcher.should_receive(:dispatch).with(commit)
-      persistence_engine.should_receive(:mark_commit_as_dispatched).with(commit)
+      expect(dispatcher).to receive(:dispatch).with(commit)
+      expect(persistence_engine).to receive(:mark_commit_as_dispatched).with(commit)
       hook.post_commit(commit)
     end
     
     it "should dispatch commit but don't mark it as dispached if failed" do
-      dispatcher.should_receive(:dispatch).with(commit).and_raise("some-error")
-      persistence_engine.should_not_receive(:mark_commit_as_dispatched).with(commit)
+      expect(dispatcher).to receive(:dispatch).with(commit).and_raise("some-error")
+      expect(persistence_engine).not_to receive(:mark_commit_as_dispatched).with(commit)
       
-      lambda { hook.post_commit(commit) }.should raise_error("some-error")
+      expect(lambda { hook.post_commit(commit) }).to raise_error("some-error")
     end
   end
 end

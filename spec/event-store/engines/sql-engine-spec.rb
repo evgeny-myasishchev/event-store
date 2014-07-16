@@ -80,6 +80,20 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(indices.key?(:"event-store-commits_stream_id_index")).to be_truthy
       expect(indices[:"event-store-commits_stream_id_index"][:columns]).to eql [:stream_id]
     end
+
+    it "stream_id and commit_sequence should be indexed with unique key to maintain optimistic concurrency" do
+      indices = subject.connection.indexes(:'event-store-commits')
+      indices.key?(:"event-store-commits_stream_id_commit_sequence_index").should be_true
+      indices[:"event-store-commits_stream_id_commit_sequence_index"][:columns].should eql [:stream_id, :commit_sequence]
+      indices[:"event-store-commits_stream_id_commit_sequence_index"][:unique].should be_true
+    end
+
+    it "stream_id and stream_revision should be indexed with unique key to maintain optimistic concurrency" do
+      indices = subject.connection.indexes(:'event-store-commits')
+      indices.key?(:"event-store-commits_stream_id_stream_revision_index").should be_true
+      indices[:"event-store-commits_stream_id_stream_revision_index"][:columns].should eql [:stream_id, :stream_revision]
+      indices[:"event-store-commits_stream_id_stream_revision_index"][:unique].should be_true
+    end
   end
   
   context "not initialized" do

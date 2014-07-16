@@ -100,6 +100,8 @@ module EventStore::Persistence::Engines
           Boolean :has_been_dispatched, :null=>false, :default => false
           Blob :events, :null=>false
           Blob :headers, :null=>false
+          index [:stream_id, :commit_sequence], unique: true
+          index [:stream_id, :stream_revision], unique: true
         end
       end
       @storage = @connection[@options[:table]]

@@ -1,4 +1,7 @@
 module EventStore
+  class ConcurrencyError < StandardError 
+  end
+
   autoload :Base, 'event-store/base'
   autoload :Bootstrap, 'event-store/bootstrap'
   autoload :Commit, 'event-store/commit'

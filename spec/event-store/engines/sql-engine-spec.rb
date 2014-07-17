@@ -138,7 +138,25 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(serializer.deserialize(commit[:events])).to eql attempt.events
     end
 
-    xit "should raise specific ConcurrencyException if stream_revision or commit_sequence unique keys are violated"
+    it "should raise specific ConcurrencyException if stream_revision or commit_sequence unique keys are violated" do
+      commit_args = {
+        :stream_id => 'stream-1',
+        :commit_id => 'commit-1',
+        :commit_sequence => 1,
+        :stream_revision => 1
+      }
+      attempt = EventStore::Commit.new commit_args
+      subject.commit attempt
+
+      commit_args[:stream_revision] = 2
+      attempt = EventStore::Commit.new commit_args
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
+
+      commit_args[:stream_revision] = 1
+      commit_args[:commit_sequence] = 2
+      attempt = EventStore::Commit.new commit_args
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
+    end
   end
   
   describe "mark_commit_as_dispatched" do

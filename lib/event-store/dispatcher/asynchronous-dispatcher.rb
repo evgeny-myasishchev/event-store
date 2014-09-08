@@ -1,5 +1,5 @@
 module EventStore::Dispatcher
-  class SynchronousDispatcher < Base
+  class AsynchronousDispatcher < Base
     attr_reader :receiver
     def initialize(&receiver)
       @receiver = receiver

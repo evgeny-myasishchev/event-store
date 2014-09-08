@@ -37,6 +37,29 @@ describe EventStore::Bootstrap do
       end
     end
     
+    describe "has_dispatcher?" do
+      it "should be true if the engine has been initialized" do
+        described_class.bootstrap do |with|
+          with.in_memory_persistence
+          expect(with).not_to have_dispatcher
+          with.synchorous_dispatcher {}
+          expect(with).to have_dispatcher
+        end
+      end
+    end
+    
+    describe 'synchorous_dispatcher' do
+      it 'should initialize synchorous dispatcher' do
+        receiver = lambda { |args|  }
+        described_class.bootstrap do |with|
+          with.in_memory_persistence
+          with.synchorous_dispatcher &receiver
+          expect(with.dispatcher).to be_instance_of(EventStore::Dispatcher::SynchronousDispatcher)
+          expect(with.dispatcher.receiver).to be receiver
+        end
+      end
+    end
+    
     it "should not dispatch_undispatched immediatelly" do
       store = double(:store)
       allow(EventStore::Base).to receive(:new) {store}

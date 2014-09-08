@@ -4,7 +4,9 @@ module EventStore
   autoload :Commit, 'event-store/commit'
   
   module Dispatcher
+    autoload :Base, 'event-store/dispatcher/base'
     autoload :SynchronousDispatcher, 'event-store/dispatcher/synchronous-dispatcher'
+    autoload :AsynchronousDispatcher, 'event-store/dispatcher/asynchronous-dispatcher'
   end
   
   autoload :EventMessage, 'event-store/event-message'

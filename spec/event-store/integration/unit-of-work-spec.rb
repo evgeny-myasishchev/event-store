@@ -7,7 +7,7 @@ describe "Integration - EventStore - Unit Of Work" do
     EventStore.bootstrap do |with|
       with.log4r_logging
       with.in_memory_persistence
-      with.synchorous_dispatcher do |commit|
+      with.synchronous_dispatcher do |commit|
         commit.events.each { |event| 
           @dispatch_hook.call event unless @dispatch_hook.nil?
           dispatched_events << event 

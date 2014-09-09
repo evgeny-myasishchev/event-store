@@ -5,7 +5,7 @@ describe EventStore::Bootstrap do
     it "should raise BootstrapError if no persistence" do
       expect { 
         described_class.bootstrap do |with|
-          with.synchorous_dispatcher {}
+          with.synchronous_dispatcher {}
         end
       }.to raise_error(EventStore::Bootstrap::BootstrapError)
     end
@@ -21,7 +21,7 @@ describe EventStore::Bootstrap do
     it "should create new event store" do
       store = described_class.bootstrap do |with|
         with.in_memory_persistence
-        with.synchorous_dispatcher {}
+        with.synchronous_dispatcher {}
       end
       expect(store).to be_instance_of(EventStore::Base)
     end
@@ -32,7 +32,7 @@ describe EventStore::Bootstrap do
           expect(with).not_to have_persistence_engine
           with.in_memory_persistence
           expect(with).to have_persistence_engine
-          with.synchorous_dispatcher {}
+          with.synchronous_dispatcher {}
         end
       end
     end
@@ -42,18 +42,18 @@ describe EventStore::Bootstrap do
         described_class.bootstrap do |with|
           with.in_memory_persistence
           expect(with).not_to have_dispatcher
-          with.synchorous_dispatcher {}
+          with.synchronous_dispatcher {}
           expect(with).to have_dispatcher
         end
       end
     end
     
-    describe 'synchorous_dispatcher' do
-      it 'should initialize the synchorous dispatcher' do
+    describe 'synchronous_dispatcher' do
+      it 'should initialize the synchronous dispatcher' do
         receiver = lambda { |args|  }
         described_class.bootstrap do |with|
           with.in_memory_persistence
-          with.synchorous_dispatcher &receiver
+          with.synchronous_dispatcher &receiver
           expect(with.dispatcher).to be_instance_of(EventStore::Dispatcher::SynchronousDispatcher)
           expect(with.dispatcher.receiver).to be receiver
         end
@@ -78,7 +78,7 @@ describe EventStore::Bootstrap do
       expect(store).not_to receive(:dispatch_undispatched)
       described_class.bootstrap do |with|
         with.in_memory_persistence
-        with.synchorous_dispatcher {}
+        with.synchronous_dispatcher {}
       end
     end
     
@@ -95,7 +95,7 @@ describe EventStore::Bootstrap do
           engine_init = with.sql_persistence(connection_spec, options)
           expect(engine_init).to be_instance_of(EventStore::Bootstrap::SqlEngineInit)
           expect(engine_init.engine).to be sql_engine
-          with.synchorous_dispatcher {}
+          with.synchronous_dispatcher {}
         end
       end
       
@@ -106,7 +106,7 @@ describe EventStore::Bootstrap do
         before(:each) do
           EventStore::Bootstrap.bootstrap do |with|
             @subject = with.sql_persistence(connection_spec, options)
-            with.synchorous_dispatcher {}
+            with.synchronous_dispatcher {}
           end
         end
         

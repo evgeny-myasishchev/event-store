@@ -49,7 +49,7 @@ module Sample
     store = EventStore.bootstrap do |with|
       with.log4r_logging
       with.sql_persistence adapter: 'sqlite', database: 'db/event-store.sqlite3'
-      with.synchorous_dispatcher do |commit|
+      with.synchronous_dispatcher do |commit|
         commit.events.each { |event| Log.debug "Dispatching event: #{event.body}" }
       end
     end

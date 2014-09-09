@@ -1,7 +1,7 @@
 class EventStore::Base
   Log = EventStore::Logging::Logger.get 'event-store'
   
-  attr_reader :persistence_engine, :dispatcher_hook
+  attr_reader :persistence_engine, :dispatcher, :dispatcher_hook
     
   def initialize(persistence_engine, dispatcher)
     @persistence_engine, @dispatcher = persistence_engine, dispatcher

@@ -49,12 +49,24 @@ describe EventStore::Bootstrap do
     end
     
     describe 'synchorous_dispatcher' do
-      it 'should initialize synchorous dispatcher' do
+      it 'should initialize the synchorous dispatcher' do
         receiver = lambda { |args|  }
         described_class.bootstrap do |with|
           with.in_memory_persistence
           with.synchorous_dispatcher &receiver
           expect(with.dispatcher).to be_instance_of(EventStore::Dispatcher::SynchronousDispatcher)
+          expect(with.dispatcher.receiver).to be receiver
+        end
+      end
+    end
+    
+    describe 'asynchorous_dispatcher' do
+      it 'should initialize the asynchorous dispatcher' do
+        receiver = lambda { |args|  }
+        described_class.bootstrap do |with|
+          with.in_memory_persistence
+          with.asynchorous_dispatcher &receiver
+          expect(with.dispatcher).to be_instance_of(EventStore::Dispatcher::AsynchronousDispatcher)
           expect(with.dispatcher.receiver).to be receiver
         end
       end

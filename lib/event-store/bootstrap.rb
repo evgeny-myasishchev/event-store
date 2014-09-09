@@ -49,6 +49,11 @@ module EventStore
       def synchorous_dispatcher(&receiver)
         @dispatcher = Dispatcher::SynchronousDispatcher.new(&receiver)
       end
+      
+      # &receiver should accept single argument the commit to dispatch.
+      def asynchorous_dispatcher(&receiver)
+        @dispatcher = Dispatcher::AsynchronousDispatcher.new(&receiver)
+      end
     end
     
     class SqlEngineInit

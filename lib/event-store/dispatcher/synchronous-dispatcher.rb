@@ -6,7 +6,7 @@ module EventStore::Dispatcher
     end
     
     #dispatch the specified commit to some kind of communications infrastructure.
-    def dispatch(commit)
+    def dispatch_immediately(commit)
       @receiver.call(commit)
     end
   end

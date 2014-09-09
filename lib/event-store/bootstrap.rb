@@ -51,7 +51,7 @@ module EventStore
       end
       
       # &receiver should accept single argument the commit to dispatch.
-      def asynchorous_dispatcher(&receiver)
+      def asynchronous_dispatcher(&receiver)
         @dispatcher = Dispatcher::AsynchronousDispatcher.new(&receiver)
       end
     end

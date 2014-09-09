@@ -24,7 +24,7 @@ module EventStore::Dispatcher
     private def start_worker queue
       Log.info 'Starting asynchronous dispatcher worker thread...'
       Thread.new do
-        until (commit = queue.pop) == :stop
+        until :stop == (commit = queue.pop)
           super_schedule_dispatch commit
         end
       end

@@ -25,7 +25,7 @@ describe EventStore::Dispatcher::AsynchronousDispatcher do
   
   describe 'stop' do
     it 'should stop the worker queue dispatching all pending commits blocking current thread' do
-      c1, c2 = double(:c1), double(:c2)
+      c1, c2 = EventStore::Commit.new(stream_id: 's-1'), EventStore::Commit.new(stream_id: 's-1')
       is_dispatched = false
       receiver = ->(c) { 
         is_dispatched = true if c == c2

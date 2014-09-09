@@ -2,19 +2,17 @@ require 'spec-helper'
 
 describe EventStore::Base do
   let(:persistence_engine) { double(:persistence_engine) }
-  let(:dispatcher) { double(:dispatcher) }
+  let(:dispatcher) { double(:dispatcher, hook_into_pipeline: nil) }
   let(:store) { described_class.new(persistence_engine, dispatcher) }
   
   describe "dispatch_undispatched" do
-    it "should get all undispatched commits from persistence_engine, dispatch them and mark them as dispatched" do
+    it "should get all undispatched commits from persistence_engine and dispatch them" do
       commit1 = double("commit-1", :commit_id => "commit-1")
       commit2 = double("commit-2", :commit_id => "commit-2")
       
       expect(persistence_engine).to receive(:get_undispatched_commits).and_return([commit1, commit2])
-      expect(dispatcher).to receive(:dispatch).with(commit1)
-      expect(dispatcher).to receive(:dispatch).with(commit2)
-      expect(persistence_engine).to receive(:mark_commit_as_dispatched).with(commit1)
-      expect(persistence_engine).to receive(:mark_commit_as_dispatched).with(commit2)
+      expect(dispatcher).to receive(:schedule_dispatch).with(commit1)
+      expect(dispatcher).to receive(:schedule_dispatch).with(commit2)
       
       store.dispatch_undispatched
     end

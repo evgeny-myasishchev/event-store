@@ -3,6 +3,7 @@ module EventStore::Dispatcher
     attr_reader :receiver
     def initialize(&receiver)
       @receiver = receiver
+      super
     end
     
     #dispatch the specified commit to some kind of communications infrastructure.

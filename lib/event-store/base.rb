@@ -21,9 +21,7 @@ class EventStore::Base
     Log.debug "#{undispatched.length} found."
     undispatched.each do |commit|
       Log.debug "Dispatching commit '#{commit.commit_id}'..."
-      @dispatcher.dispatch(commit)
-      Log.debug "Marking commit '#{commit.commit_id}' as dispatched..."
-      @persistence_engine.mark_commit_as_dispatched(commit)
+      @dispatcher.schedule_dispatch(commit)
     end
     Log.info "All undispatched commits dispatched."
   end

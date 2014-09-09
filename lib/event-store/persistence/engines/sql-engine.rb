@@ -77,15 +77,20 @@ module EventStore::Persistence::Engines
     def commit(attempt)
       ensure_initialized!
       Log.debug("Committing attempt #{attempt}")
-      @connection.call(:insert_new_commit, {
-        stream_id: attempt.stream_id,
-        commit_id: attempt.commit_id,
-        commit_sequence: attempt.commit_sequence,
-        stream_revision: attempt.stream_revision,
-        commit_timestamp: attempt.commit_timestamp,
-        events: serializer.serialize(attempt.events),
-        headers: serializer.serialize(attempt.headers)
-      })
+      begin
+        @connection.call(:insert_new_commit, {
+          stream_id: attempt.stream_id,
+          commit_id: attempt.commit_id,
+          commit_sequence: attempt.commit_sequence,
+          stream_revision: attempt.stream_revision,
+          commit_timestamp: attempt.commit_timestamp,
+          events: serializer.serialize(attempt.events),
+          headers: serializer.serialize(attempt.headers)
+        })
+      rescue Sequel::UniqueConstraintViolation => e
+        Log.error "Constraint violation error occured: #{e}."
+        raise EventStore::ConcurrencyError.new e
+      end
       nil
     end
     
@@ -102,6 +107,8 @@ module EventStore::Persistence::Engines
           Boolean :has_been_dispatched, :null=>false, :default => false
           Blob :events, :null=>false
           Blob :headers, :null=>false
+          index [:stream_id, :commit_sequence], unique: true
+          index [:stream_id, :stream_revision], unique: true
         end
       end
       @storage = @connection[@options[:table]]

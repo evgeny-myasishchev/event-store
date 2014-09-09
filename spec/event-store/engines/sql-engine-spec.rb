@@ -80,6 +80,20 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(indices.key?(:"event-store-commits_stream_id_index")).to be_truthy
       expect(indices[:"event-store-commits_stream_id_index"][:columns]).to eql [:stream_id]
     end
+
+    it "stream_id and commit_sequence should be indexed with unique key to maintain optimistic concurrency" do
+      indices = subject.connection.indexes(:'event-store-commits')
+      expect(indices.key?(:"event-store-commits_stream_id_commit_sequence_index")).to be_truthy
+      expect(indices[:"event-store-commits_stream_id_commit_sequence_index"][:columns]).to eql [:stream_id, :commit_sequence]
+      expect(indices[:"event-store-commits_stream_id_commit_sequence_index"][:unique]).to be_truthy
+    end
+
+    it "stream_id and stream_revision should be indexed with unique key to maintain optimistic concurrency" do
+      indices = subject.connection.indexes(:'event-store-commits')
+      expect(indices.key?(:"event-store-commits_stream_id_stream_revision_index")).to be_truthy
+      expect(indices[:"event-store-commits_stream_id_stream_revision_index"][:columns]).to eql [:stream_id, :stream_revision]
+      expect(indices[:"event-store-commits_stream_id_stream_revision_index"][:unique]).to be_truthy
+    end
   end
   
   context "not initialized" do
@@ -122,6 +136,26 @@ describe EventStore::Persistence::Engines::SqlEngine do
       serializer = described_class.default_serializer
       expect(serializer.deserialize(commit[:headers])).to eql attempt.headers
       expect(serializer.deserialize(commit[:events])).to eql attempt.events
+    end
+
+    it "should raise specific ConcurrencyException if stream_revision or commit_sequence unique keys are violated" do
+      commit_args = {
+        :stream_id => 'stream-1',
+        :commit_id => 'commit-1',
+        :commit_sequence => 1,
+        :stream_revision => 1
+      }
+      attempt = EventStore::Commit.new commit_args
+      subject.commit attempt
+
+      commit_args[:stream_revision] = 2
+      attempt = EventStore::Commit.new commit_args
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
+
+      commit_args[:stream_revision] = 1
+      commit_args[:commit_sequence] = 2
+      attempt = EventStore::Commit.new commit_args
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
     end
   end
   

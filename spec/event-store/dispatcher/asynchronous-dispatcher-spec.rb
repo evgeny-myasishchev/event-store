@@ -3,7 +3,7 @@ require 'spec-helper'
 describe EventStore::Dispatcher::AsynchronousDispatcher do
   describe 'schedule_dispatch' do
     it 'should dispatch the commit in an non-blocking way' do
-      commit = double(:commit)
+      commit = double(:commit, commit_id: 'c1')
       is_dispatched = false
       mutex = Mutex.new
       resource = ConditionVariable.new

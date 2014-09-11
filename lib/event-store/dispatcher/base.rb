@@ -1,5 +1,7 @@
 module EventStore::Dispatcher
   class Base
+    Log = EventStore::Logging::Logger.get 'event-store::dispatcher::base'
+    
     def initialize
       @hooks = {
         after_dispatch: []
@@ -13,6 +15,7 @@ module EventStore::Dispatcher
     end
     
     def schedule_dispatch(commit)
+      Log.debug "Dispatching commit '#{commit.commit_id}' immediately..."
       dispatch_immediately commit
       @hooks[:after_dispatch].each { |hook| hook.call(commit) }
     end

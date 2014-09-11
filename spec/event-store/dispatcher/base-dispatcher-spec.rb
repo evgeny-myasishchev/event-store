@@ -17,8 +17,8 @@ describe EventStore::Dispatcher::Base do
   }
   
   describe 'schedule_dispatch' do
-    let(:commit1) { double(:commit1) }
-    let(:commit2) { double(:commit2) }
+    let(:commit1) { double(:commit1, commit_id: 'c1') }
+    let(:commit2) { double(:commit2, commit_id: 'c2') }
     
     it 'should dispatch the commit immediatelly to the receiver' do
       subject.schedule_dispatch commit1

@@ -10,6 +10,7 @@ module EventStore::Dispatcher
     
     alias_method :super_schedule_dispatch, :schedule_dispatch
     def schedule_dispatch(commit)
+      Log.debug "Adding new commit '#{commit.commit_id}' to queue. Worker #{@worker} status: #{@worker.status}"
       @queue.push(commit)
     end
     
@@ -23,11 +24,23 @@ module EventStore::Dispatcher
     
     private def start_worker queue
       Log.info 'Starting asynchronous dispatcher worker thread...'
-      Thread.new do
-        until :stop == (commit = queue.pop)
-          super_schedule_dispatch commit
+      worker = Thread.new do
+        commit = nil
+        loop do
+          Log.debug 'Waiting for the next commit from the queue...'
+          commit = queue.pop
+          break if :stop == commit
+          
+          Log.debug "Worker got new commit from the queue '#{commit.commit_id}'."
+          begin
+            super_schedule_dispatch commit
+          rescue Exception => e
+            Log.error "Failed to dispatch commit: #{commit}.\n#{e}"
+          end
         end
+        Log.debug 'Worker stopped.'
       end
+      worker
     end
   end
 end

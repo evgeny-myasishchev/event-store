@@ -6,6 +6,8 @@ module EventStore::Dispatcher
       super
       @queue = Queue.new
       @worker = start_worker @queue
+      @ping_mutex = Mutex.new
+      @ping_occured = ConditionVariable.new
     end
     
     alias_method :super_schedule_dispatch, :schedule_dispatch
@@ -22,6 +24,19 @@ module EventStore::Dispatcher
       Log.info 'Stopped.'
     end
     
+    def restart
+      raise "Failed to restart. The worker is still running. Status: #{@worker.status}." unless (@worker.status == nil || @worker.status == false)
+      @worker = start_worker @queue
+    end
+    
+    def wait_pending
+      Log.info 'Waiting for currently pending commits...'
+      Log.debug 'Sending :ping command and waiting response...'
+      @queue.push(:ping)
+      @ping_mutex.synchronize { @ping_occured.wait(@ping_mutex) }
+      Log.info 'Pending commits dispatched.'
+    end
+    
     private def start_worker queue
       Log.info 'Starting asynchronous dispatcher worker thread...'
       worker = Thread.new do
@@ -30,7 +45,11 @@ module EventStore::Dispatcher
           Log.debug 'Waiting for the next commit from the queue...'
           commit = queue.pop
           break if :stop == commit
-          
+          if :ping == commit
+            Log.debug ':ping command received. Notifying...'
+            @ping_mutex.synchronize { @ping_occured.signal }
+            next
+          end
           Log.debug "Worker got new commit from the queue '#{commit.commit_id}'."
           begin
             super_schedule_dispatch commit

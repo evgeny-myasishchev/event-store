@@ -1,7 +1,7 @@
 module EventStore
   MAJOR = 1
-  MINOR = 1
-  TINY = 3
+  MINOR = 2
+  TINY = 1
   
   VERSION = [MAJOR, MINOR, TINY].join('.')
   

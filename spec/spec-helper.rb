@@ -48,4 +48,8 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   #     --seed 1234
   config.order = 'random'
+  
+  db_config_file = ENV.key?('DB_CONFIG') ? ENV['DB_CONFIG'] : 'support/database_sqlite.yml'
+  config.add_setting :database_config
+  config.database_config = db_config = YAML.load_file File.expand_path(db_config_file, __dir__)
 end

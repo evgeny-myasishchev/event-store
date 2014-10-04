@@ -3,9 +3,10 @@ require 'spec-helper'
 
 describe EventStore::Persistence::Engines::SqlEngine do
   include Support::CommitsHelper
-  let(:engine) { described_class.new({adapter: "sqlite", database: ":memory:"}, {:orm_log_level => :debug}) }
+  let(:engine) { described_class.new(RSpec.configuration.database_config, {:orm_log_level => :debug}) }
   subject {
     engine.init_engine
+    engine.purge
     engine
   }
   

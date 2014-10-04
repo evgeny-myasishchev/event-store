@@ -1,0 +1,4 @@
+adapter: postgres
+encoding: unicode
+database: event_store_test
+pool: 5

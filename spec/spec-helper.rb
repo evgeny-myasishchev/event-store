@@ -49,7 +49,7 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
   
-  db_config_file = ENV.key?('DB_CONFIG') ? ENV['DB_CONFIG'] : 'support/database_sqlite.yml'
+  db_config_file = ENV.key?('DB_CONFIG') ? ENV['DB_CONFIG'] : 'spec/support/database_sqlite.yml'
   config.add_setting :database_config
-  config.database_config = db_config = YAML.load_file File.expand_path(db_config_file, __dir__)
+  config.database_config = db_config = YAML.load_file File.expand_path(db_config_file, File.join(__dir__, '..'))
 end

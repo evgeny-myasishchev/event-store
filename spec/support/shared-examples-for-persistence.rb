@@ -49,6 +49,20 @@ shared_examples "generic-persistence-engine" do
       expect(stream_commits[1]).to eql commit2
       expect(stream_commits[2]).to eql commit3
     end
+
+    it 'should retrieve commits limiting to min revision inclusive' do      
+      commit1 = build_commit("stream-1", "commit-1")
+      commit2 = build_commit("stream-1", "commit-2")
+      commit3 = build_commit("stream-1", "commit-3")
+      commit4 = build_commit("stream-1", "commit-4")
+
+      commit_all(subject, commit1, commit2, commit3, commit4)
+
+      stream_commits = subject.get_from("stream-1", min_revision: 3)
+      expect(stream_commits.length).to eql(2)      
+      expect(stream_commits[0]).to eql commit3
+      expect(stream_commits[1]).to eql commit4
+    end
   end
   
   describe "for_each_commit" do

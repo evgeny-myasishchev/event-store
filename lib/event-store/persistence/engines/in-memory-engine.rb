@@ -9,8 +9,10 @@ module EventStore::Persistence::Engines
       @streams_store.key?(stream_id)
     end
     
-    def get_from(stream_id)
-      stream_store(stream_id).sort do |left, right|
+    def get_from(stream_id, min_revision: nil)
+      stream_store(stream_id)
+      .select { |commit| min_revision == nil || commit.stream_revision >= min_revision  }
+      .sort do |left, right|
         left.commit_sequence <=> right.commit_sequence
       end
     end

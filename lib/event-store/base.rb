@@ -38,16 +38,6 @@ class EventStore::Base
     EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
   end
   
-  def begin_work(headers = {}, &block)
-    work = EventStore::UnitOfWork.new self, @dispatcher_hook
-    if block_given?
-      yield(work)
-      work.commit_changes headers
-    else
-      work
-    end
-  end
-  
   #Removes all events from the stream. Use with caution.
   def purge
     @persistence_engine.purge

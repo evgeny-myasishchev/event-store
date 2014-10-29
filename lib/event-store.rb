@@ -42,8 +42,6 @@ module EventStore
     autoload :PipelineHook, 'event-store/hooks/pipeline-hook'
   end
   
-  autoload :UnitOfWork, 'event-store/unit-of-work'
-  
   class << self
     def bootstrap(&block)
       Bootstrap.bootstrap(&block)

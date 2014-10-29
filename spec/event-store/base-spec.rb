@@ -47,35 +47,4 @@ describe EventStore::Base do
       store.purge
     end
   end
-  
-  describe "begin_work" do
-    let(:work) { double(:work, commit_changes: nil) }
-    before(:each) do
-      expect(EventStore::UnitOfWork).to receive(:new).with(store, store.dispatcher_hook).and_return(work)
-    end
-    it "should start a new work and commit changes" do
-      expect(work).to receive(:commit_changes)
-      store.begin_work do |w|
-        expect(w).to be work
-      end
-    end
-    
-    it "should commit changes with headers if supplied" do
-      headers = {header1: 'header-1'}
-      expect(work).to receive(:commit_changes).with(headers)
-      store.begin_work headers do |w|
-        expect(w).to be work
-      end
-    end
-    
-    it "should return nil if block given" do
-      expect(store.begin_work do |w|
-      end).to be_nil
-    end
-    
-    it "should just start a new work and return it if no block given" do
-      expect(work).not_to receive(:commit_changes)
-      expect(store.begin_work).to be(work)
-    end
-  end
 end

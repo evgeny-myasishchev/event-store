@@ -37,12 +37,9 @@ module EventStore::Persistence::Engines
       !@storage.where(stream_id: stream_id).empty?
     end
     
-  	#Gets the corresponding commits from the stream indicated with the identifier.
-  	#Returned commits are sorted in ascending order from older to newer.
-  	#If no commits are found then empty array returned.
-    def get_from(stream_id)
+    def get_from(stream_id, min_revision: nil)
       ensure_initialized!
-      map_to_commits @connection.call(:select_from_stream, stream_id: stream_id)
+      map_to_commits @connection.call(:select_from_stream, stream_id: stream_id, min_revision: min_revision)
     end
     
     def for_each_commit(&block)
@@ -167,7 +164,7 @@ module EventStore::Persistence::Engines
           filter(commit_id: :$commit_id).
           prepare(:update, :mark_as_dispatched, :has_been_dispatched => true)
         storage.
-          filter(stream_id: :$stream_id).
+          where('stream_id = :stream_id and (:min_revision is null or stream_revision >= :min_revision)', stream_id: :$stream_id, min_revision: :$min_revision).
           order(:commit_sequence).
           prepare(:select, :select_from_stream)
         storage.

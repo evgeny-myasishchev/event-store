@@ -10,7 +10,8 @@ module EventStore::Persistence
     #Gets the corresponding commits from the stream indicated with the identifier.
     #Returned commits are sorted in ascending order from older to newer.
     #If no commits are found then empty array returned.
-    def get_from(stream_id)
+    #Optionally retrieved commits can be optionally retrieved from min_revision (inclusive)
+    def get_from(stream_id, min_revision: nil)
       raise "Not implemented"
     end
     

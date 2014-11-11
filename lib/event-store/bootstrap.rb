@@ -44,6 +44,10 @@ module EventStore
         @persistence_engine.init_engine
         SqlEngineInit.new @persistence_engine
       end
+      
+      def persistence persistence_engine
+        @persistence_engine = persistence_engine
+      end
 
       # &receiver should accept single argument the commit to dispatch.
       def synchronous_dispatcher(&receiver)

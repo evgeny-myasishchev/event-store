@@ -4,13 +4,6 @@ describe EventStore::EventStream do
   let(:persistence_engine) { double("persistence-engine", :commit => nil, :get_from => []) }
   let(:stream) { described_class.new("fake-stream-id", persistence_engine) }
   
-  describe "initialize" do
-    it "should fail if stream-id is empty" do
-      expect(lambda { described_class.new("", persistence_engine) }).to raise_error(EventStore::EventStream::InvalidStreamIdError)
-      expect(lambda { described_class.new(nil, persistence_engine) }).to raise_error(EventStore::EventStream::InvalidStreamIdError)
-    end
-  end
-  
   describe "add" do
     it "should add an event to an uncommitted_events list" do
       evt1 = EventStore::EventMessage.new :some_body => 1
@@ -40,6 +33,11 @@ describe EventStore::EventStream do
   end
   
   describe "initialize" do
+    it "should fail if stream-id is empty" do
+      expect(lambda { described_class.new("", persistence_engine) }).to raise_error(EventStore::EventStream::InvalidStreamIdError)
+      expect(lambda { described_class.new(nil, persistence_engine) }).to raise_error(EventStore::EventStream::InvalidStreamIdError)
+    end
+    
     it "should use persistence_engine to get all commits" do
       expect(persistence_engine).to receive(:get_from).with("fake-stream-id").and_return([])
       described_class.new("fake-stream-id", persistence_engine)
@@ -63,9 +61,9 @@ describe EventStore::EventStream do
     end  
       
     context "if there are commits" do
-      let(:commit1) { double(:commit, :commit_sequence => 1, :events => [double(:evt1), double(:evt2)]) }
-      let(:commit2) { double(:commit, :commit_sequence => 2, :events => [double(:evt1)]) }
-      let(:commit3) { double(:commit, :commit_sequence => 3, :events => [double(:evt1), double(:evt2), double(:evt3)]) }
+      let(:commit1) { double(:commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)]) }
+      let(:commit2) { double(:commit, :commit_sequence => 2, stream_revision: 3, :events => [double(:evt1)]) }
+      let(:commit3) { double(:commit, :commit_sequence => 3, stream_revision: 6, :events => [double(:evt1), double(:evt2), double(:evt3)]) }
       
       before(:each) do
         allow(persistence_engine).to receive(:get_from) { [commit1, commit2, commit3] }
@@ -87,6 +85,24 @@ describe EventStore::EventStream do
       it "should set is new to false" do
         expect(stream).not_to be_new_stream
       end
+      
+      it 'should handle min_revision option' do
+        commit1 = double(:commit, commit_id: 1, :commit_sequence => 10, stream_revision: 14, :events => [double(:evt1), double(:evt2), double(:evt2)])
+        commit2 = double(:commit, commit_id: 2, :commit_sequence => 11, stream_revision: 15, :events => [double(:evt1)])
+        commit3 = double(:commit, commit_id: 3, :commit_sequence => 12, stream_revision: 18, :events => [double(:evt1), double(:evt2), double(:evt3)])
+
+        expect(persistence_engine).to receive(:get_from).with('stream-100', min_revision: 13) { [commit1, commit2, commit3] }
+        stream = described_class.new('stream-100', persistence_engine, min_revision: 13)
+        expect(stream.stream_revision).to eql 18
+        expect(stream.commit_sequence).to eql 12
+        expect(stream.committed_events.length).to eql 6
+        expect(stream.committed_events[0]).to be commit1.events[1]
+        expect(stream.committed_events[1]).to be commit1.events[2]
+        expect(stream.committed_events[2]).to be commit2.events[0]
+        expect(stream.committed_events[3]).to be commit3.events[0]
+        expect(stream.committed_events[4]).to be commit3.events[1]
+        expect(stream.committed_events[5]).to be commit3.events[2]
+      end
     end
   end
   
@@ -95,7 +111,7 @@ describe EventStore::EventStream do
       evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
-      attempt = double(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
+      attempt = double(:attempt, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
       expect(EventStore::Commit).to receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
       expect(persistence_engine).to receive(:commit).with(attempt)
@@ -110,8 +126,8 @@ describe EventStore::EventStream do
     end
     
     it "should populate stream with new events and remove them from uncommited" do
-      commit1 = double(:commit, :commit_id => "commit-1", :commit_sequence => 1, :events => [double(:evt1), double(:evt2)])
-      commit2 = double(:commit, :commit_id => "commit-2", :commit_sequence => 2, :events => [double(:evt1)])
+      commit1 = double(:commit, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [double(:evt1), double(:evt2)])
+      commit2 = double(:commit, stream_revision: 3, :commit_id => "commit-2", :commit_sequence => 2, :events => [double(:evt1)])
       
       allow(persistence_engine).to receive(:get_from) { [commit1, commit2] }
       
@@ -126,7 +142,7 @@ describe EventStore::EventStream do
       
       expect(stream.uncommitted_events.length).to eql 2
       
-      attempt = double(:attempt, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
+      attempt = double(:attempt, stream_revision: 5, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
       allow(EventStore::Commit).to receive(:build) { attempt }
       
       stream.commit_changes
@@ -151,7 +167,7 @@ describe EventStore::EventStream do
     it "should invoke pipeline_hooks after commit" do
       hook1   = double(:hook1), hook2 = double(:hook2)
       stream = described_class.new(EventStore::Identity::generate, persistence_engine, :hooks => [hook1, hook2])
-      attempt = double(:attempt, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
+      attempt = double(:attempt, stream_revision: 1, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
       allow(EventStore::Commit).to receive(:build) { attempt }
       stream.add(double("event-1"))
       

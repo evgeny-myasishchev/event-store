@@ -39,6 +39,15 @@ describe EventStore::Base do
       end
       expect(store.open_stream("some-stream-id")).to eql mock_stream
     end
+      
+    it "should handle min_revision option when initializing" do
+      mock_stream = double(:stream)
+      expect(EventStore::EventStream).to receive(:new) do |stream_id, pe, options|
+        expect(options[:min_revision]).to eql 10
+        mock_stream
+      end
+      expect(store.open_stream("some-stream-id", min_revision: 10)).to eql mock_stream
+    end
   end
   
   describe "purge" do

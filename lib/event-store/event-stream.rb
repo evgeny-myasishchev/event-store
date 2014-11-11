@@ -41,22 +41,22 @@ class EventStore::EventStream
 	# * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
 	# * 
 	# 
-	def initialize(stream_id, persistence_engine, options = {})
+	def initialize(stream_id, persistence_engine, min_revision: nil, hooks: [])
 	  raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
-	  @options = {
-	    :hooks => []
-	  }.merge!(options)
     @stream_id          = stream_id
     @persistence_engine = persistence_engine
     @uncommitted_events = []
-    @pipeline_hooks     = @options[:hooks]
+    @pipeline_hooks     = hooks
     
     @stream_revision    = 0
     @commit_sequence    = 0
     @committed_events   = []
     @uncommitted_events = []
     
-    populate_stream_with persistence_engine.get_from(stream_id)
+    commits = min_revision.nil? ? 
+      persistence_engine.get_from(stream_id) :
+      persistence_engine.get_from(stream_id, min_revision: min_revision)
+    populate_stream_with commits, min_revision: min_revision
 	end
 
 	# Adds the event messages provided to the session to be tracked.
@@ -86,18 +86,34 @@ class EventStore::EventStream
 	end
 	
 	private
-	  def populate_stream_with(commits)
+	  def populate_stream_with(commits, min_revision: nil)
 	    if commits.empty?
 	      Log.debug "Opening new stream '#{stream_id}' since no commits found..."
         @new_stream = true
 	      return
 	    end
+      Log.debug "Populating stream '#{stream_id}' with #{commits.length} commits..."
+      Log.debug "Min revision limit specified: #{min_revision}" unless min_revision.nil?
       @new_stream = false
-	    Log.debug "Populating stream '#{stream_id}' with #{commits.length} commits..."
+      last_commit = nil
+      first_commit = commits.first
 	    commits.each do |commit|
-	      @commit_sequence = commit.commit_sequence
-	      @stream_revision += commit.events.length
-	      @committed_events.concat(commit.events)
+        last_commit = commit
+        events = commit.events
+        # Only some slice of the events from the first commit may have to be retrieved
+        # If the min_revision is between first and last event in the commit
+        if !min_revision.nil? && commit.events.length > 1 && commit == first_commit
+          stream_start = commit.stream_revision - commit.events.length
+          if min_revision > stream_start
+            slice_start = min_revision - stream_start - 1
+            slice_end = commit.events.length - 1
+            Log.debug "The first commit '#{commit.commit_id}' (with stream_revision: #{commit.stream_revision}) has #{commit.events.length} events. Limiting events to range: #{slice_start}..#{slice_end}"
+            events = events[slice_start..slice_end]
+          end
+        end
+	      @committed_events.concat(events)
 	    end
+      @stream_revision = last_commit.stream_revision
+      @commit_sequence = last_commit.commit_sequence
 	  end
 end

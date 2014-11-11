@@ -34,8 +34,8 @@ class EventStore::Base
   # Opens an event stream
   # If there is at least one commit then the stream get's opened and populated
   # In other case an empty stream returned.
-  def open_stream(stream_id)
-    EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks)
+  def open_stream(stream_id, min_revision: nil)
+    EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks, min_revision: min_revision)
   end
   
   #Removes all events from the stream. Use with caution.

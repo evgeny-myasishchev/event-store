@@ -164,7 +164,7 @@ module EventStore::Persistence::Engines
           filter(commit_id: :$commit_id).
           prepare(:update, :mark_as_dispatched, :has_been_dispatched => true)
         storage.
-          where('stream_id = :stream_id and (:min_revision is null or stream_revision >= :min_revision)', stream_id: :$stream_id, min_revision: :$min_revision).
+          where('stream_id = :stream_id and (stream_revision >= :min_revision or :min_revision is NULL)', stream_id: :$stream_id, min_revision: :$min_revision).
           order(:commit_sequence).
           prepare(:select, :select_from_stream)
         storage.

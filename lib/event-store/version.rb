@@ -1,9 +1,10 @@
 module EventStore
   MAJOR = 2
   MINOR = 0
-  TINY = 1
+  PATCH = 1
+  BUILD = 'rc1'
   
-  VERSION = [MAJOR, MINOR, TINY].join('.')
+  VERSION = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   
   def self.version
     VERSION

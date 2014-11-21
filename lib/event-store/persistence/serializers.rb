@@ -48,4 +48,18 @@ module EventStore::Persistence::Serializers
       return YAML
     end
   end
+  
+  class GzipSerializer < AbstractSerializer
+    def initialize(inner)
+      @inner = inner
+    end
+    
+    def serialize(data)
+      Zlib::Deflate.deflate @inner.serialize data
+    end
+    
+    def deserialize(data)
+      @inner.deserialize Zlib::Inflate.inflate data
+    end
+  end
 end

@@ -80,6 +80,11 @@ module EventStore
         @engine.serializer = Persistence::Serializers::YamlSerializer.new
         self
       end
+      
+      def compress
+        @engine.serializer = Persistence::Serializers::GzipSerializer.new @engine.serializer
+        self
+      end
     end
   end
 end

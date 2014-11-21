@@ -11,8 +11,8 @@ describe 'EventStore::Base integration' do
   describe 'compression' do
     it 'should correctly persist and retrieve stream events' do
       original_stream = subject.open_stream 'stream-221'
-      evt1 = EventStore::EventMessage.new :evt1 => true
-      evt2 = EventStore::EventMessage.new :evt2 => true
+      evt1 = EventStore::EventMessage.new({:evt1 => true}, {header1: 'value-1'})
+      evt2 = EventStore::EventMessage.new({:evt2 => true}, {header2: 'value-2'})
       original_stream.add evt1
       original_stream.add evt2
       original_stream.commit_changes

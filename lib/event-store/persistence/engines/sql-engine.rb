@@ -26,7 +26,7 @@ module EventStore::Persistence::Engines
       }.merge! options
       
       @connection = Sequel.connect connection_specification
-      @connection.loggers << EventStore::Logging::Logger.get("event-store::persistance::orm")
+      @connection.loggers << EventStore::Logging::Logger.get("event-store::persistence::orm")
       @connection.sql_log_level = @options[:orm_log_level]
       
       @initialized = false
@@ -146,8 +146,8 @@ module EventStore::Persistence::Engines
           commit_sequence: commit_hash[:commit_sequence],
           stream_revision: commit_hash[:stream_revision],
           commit_timestamp: commit_hash[:commit_timestamp].utc,
-          events: serializer.deserialize(commit_hash[:events]),
-          headers: serializer.deserialize(commit_hash[:headers])
+          events: serializer.deserialize(Sequel.blob(commit_hash[:events])),
+          headers: serializer.deserialize(Sequel.blob(commit_hash[:headers]))
       end
       
       def prepare_statements storage

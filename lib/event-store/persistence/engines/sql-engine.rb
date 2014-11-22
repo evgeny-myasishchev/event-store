@@ -81,8 +81,8 @@ module EventStore::Persistence::Engines
           commit_sequence: attempt.commit_sequence,
           stream_revision: attempt.stream_revision,
           commit_timestamp: attempt.commit_timestamp,
-          events: serializer.serialize(attempt.events),
-          headers: serializer.serialize(attempt.headers)
+          events: Sequel.blob(serializer.serialize(attempt.events)),
+          headers: Sequel.blob(serializer.serialize(attempt.headers))
         })
       rescue Sequel::UniqueConstraintViolation => e
         Log.error "Constraint violation error occured: #{e}."

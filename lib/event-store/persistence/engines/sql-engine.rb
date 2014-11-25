@@ -75,7 +75,7 @@ module EventStore::Persistence::Engines
       ensure_initialized!
       Log.debug("Committing attempt #{attempt}")
       begin
-        @connection.call(:insert_new_commit, {
+        @storage.insert({
           stream_id: attempt.stream_id,
           commit_id: attempt.commit_id,
           commit_sequence: attempt.commit_sequence,
@@ -151,15 +151,6 @@ module EventStore::Persistence::Engines
       end
       
       def prepare_statements storage
-        storage.prepare(:insert, :insert_new_commit, {
-          stream_id: :$stream_id, 
-          commit_id: :$commit_id,
-          commit_sequence: :$commit_sequence,
-          stream_revision: :$stream_revision,
-          commit_timestamp: :$commit_timestamp,
-          events: :$events,
-          headers: :$headers
-        })
         storage.
           filter(commit_id: :$commit_id).
           prepare(:update, :mark_as_dispatched, :has_been_dispatched => true)

@@ -5,6 +5,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
   include Support::CommitsHelper
   let(:engine) { described_class.new(RSpec.configuration.database_config, {:orm_log_level => :debug}) }
   subject {
+    engine.connection.drop_table?(:'event-store-commits')
     engine.init_engine
     engine.purge
     engine
@@ -138,7 +139,22 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(serializer.deserialize(commit[:headers])).to eql attempt.headers
       expect(serializer.deserialize(commit[:events])).to eql attempt.events
     end
-
+    
+    it "able to store and read binary data of events and headers" do
+      binary_data = []
+      256.times { |b| binary_data << b }
+      
+      attempt = build_commit("stream-1", "commit-1", {e: 'v'})
+      expect(subject.serializer).to receive(:serialize).with(attempt.events) { binary_data.pack('C*') }
+      expect(subject.serializer).to receive(:serialize).with(attempt.headers) { binary_data.pack('C*') }
+      subject.commit attempt
+      table = subject.connection[:'event-store-commits']
+      commit = table.first
+      
+      expect(commit[:events].unpack('C*')).to eql binary_data
+      expect(commit[:headers].unpack('C*')).to eql binary_data
+    end
+    
     it "should raise specific ConcurrencyException if stream_revision or commit_sequence unique keys are violated" do
       commit_args = {
         :stream_id => 'stream-1',

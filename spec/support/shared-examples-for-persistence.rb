@@ -65,6 +65,23 @@ shared_examples "generic-persistence-engine" do
     end
   end
   
+  describe 'get_head' do
+    it 'should return head related attributes' do
+      commit_all(subject, 
+        build_commit("stream-1", "commit-11", new_event("event-1"), new_event("event-2")),
+        build_commit("stream-1", "commit-12", new_event("event-3")),
+        build_commit("stream-2", "commit-21", new_event("event-1"))
+      )
+      
+      expect(subject.get_head('stream-1')).to eql(commit_sequence: 2, stream_revision: 3)
+      expect(subject.get_head('stream-2')).to eql(commit_sequence: 1, stream_revision: 1)
+    end
+    
+    it 'should return head for the new (or empty) stream' do
+      expect(subject.get_head('stream-1')).to eql(commit_sequence: 0, stream_revision: 0)
+    end
+  end
+  
   describe "for_each_commit" do
     it "should iterate through all commits ordered by commit_timestamp" do
       now      = Time.now.utc

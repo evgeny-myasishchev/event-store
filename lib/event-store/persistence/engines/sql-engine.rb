@@ -42,6 +42,15 @@ module EventStore::Persistence::Engines
       map_to_commits @connection.call(:select_from_stream, stream_id: stream_id, min_revision: min_revision)
     end
     
+    def get_head(stream_id)
+      ensure_initialized!
+      head = @storage.where(stream_id: stream_id)
+        .select(Sequel.lit('max(commit_sequence) commit_sequence, max(stream_revision) stream_revision')).first
+      head[:commit_sequence] = 0 if head[:commit_sequence].nil?
+      head[:stream_revision] = 0 if head[:stream_revision].nil?
+      head
+    end
+    
     def for_each_commit(&block)
       ensure_initialized!
       

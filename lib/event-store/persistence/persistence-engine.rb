@@ -15,6 +15,15 @@ module EventStore::Persistence
       raise "Not implemented"
     end
     
+    # Get head information for the given stream.
+    # The result is a hash with following attributes:
+    # * :stream_revision
+    # * :commit_sequence
+    # The attributes above correspond to the most recent commit.
+    def get_head(stream_id)
+      raise 'Not implemented'
+    end
+    
     #Iterates through all commits from all streams
     #Retrieved commits are sorted in ascending order from older to newer.
     def for_each_commit(&block)

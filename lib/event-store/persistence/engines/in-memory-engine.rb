@@ -17,6 +17,15 @@ module EventStore::Persistence::Engines
       end
     end
     
+    def get_head(stream_id)
+      commits = stream_store(stream_id).sort do |left, right|
+        left.commit_sequence <=> right.commit_sequence
+      end
+      commits.length > 0 ?
+        ({commit_sequence: commits.last.commit_sequence, stream_revision: commits.last.stream_revision}) : 
+        ({commit_sequence: 0, stream_revision: 0})
+    end
+    
     def for_each_commit(&block)
       all_commits = []
       @streams_store.each_value do |value|

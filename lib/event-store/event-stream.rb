@@ -56,8 +56,13 @@ class EventStore::EventStream
     commits = min_revision.nil? ? 
       persistence_engine.get_from(stream_id) :
       persistence_engine.get_from(stream_id, min_revision: min_revision)
-    populate_stream_with commits, min_revision: min_revision
-	end
+    if commits.empty?
+      Log.debug "Opening new stream '#{stream_id}' since no commits found..."
+      @new_stream = true
+    else
+      populate_stream_with commits, min_revision: min_revision
+    end
+  end
 
 	# Adds the event messages provided to the session to be tracked.
 	#  event - The event-message to be tracked.
@@ -87,11 +92,6 @@ class EventStore::EventStream
 	
 	private
 	  def populate_stream_with(commits, min_revision: nil)
-	    if commits.empty?
-	      Log.debug "Opening new stream '#{stream_id}' since no commits found..."
-        @new_stream = true
-	      return
-	    end
       Log.debug "Populating stream '#{stream_id}' with #{commits.length} commits..."
       Log.debug "Min revision limit specified: #{min_revision}" unless min_revision.nil?
       @new_stream = false

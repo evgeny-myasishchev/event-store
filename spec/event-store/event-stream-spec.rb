@@ -58,7 +58,30 @@ describe EventStore::EventStream do
       it "should set is new flag to true" do
         expect(stream).to be_new_stream
       end
-    end  
+    end
+    
+    describe 'if no commits but with min_revision' do
+      let(:stream) { described_class.new('stream-100', persistence_engine, min_revision: 13) }
+      before(:each) do
+        expect(persistence_engine).to receive(:get_from).with('stream-100', min_revision: 13) { [] }
+        allow(persistence_engine).to receive(:get_head).with('stream-100').and_return({commit_sequence: 321, stream_revision: 4432})
+      end
+      
+      it 'should initialize the stream as existing stream' do
+        expect(stream.new_stream?).to be_falsy
+      end
+      
+      it 'should get stream head and initialize the stream with it' do
+        expect(persistence_engine).to receive(:get_head).with('stream-100').and_return({commit_sequence: 321, stream_revision: 4432})
+        expect(stream.commit_sequence).to eql 321
+        expect(stream.stream_revision).to eql 4432
+      end
+      
+      it 'should fail if min_revision is greater by more than one than stream head' do
+        expect(persistence_engine).to receive(:get_head).with('stream-100').and_return({commit_sequence: 321, stream_revision: 11})
+        expect { stream }.to raise_error ArgumentError, "Specified min_revision 13 is to big. Stream head revision points to 11."
+      end
+    end
       
     context "if there are commits" do
       let(:commit1) { double(:commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)]) }

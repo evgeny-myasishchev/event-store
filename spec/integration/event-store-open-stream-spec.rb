@@ -87,6 +87,13 @@ describe 'EventStore::Base integration' do
         expect(stream.stream_revision).to eql 6
         expect(stream.commit_sequence).to eql 3
       end
+      
+      it 'should initialize the stream from stream head if min_revision yields no events' do
+        stream = subject.open_stream 'stream-221', min_revision: 7
+        expect(stream.committed_events.length).to eql 0
+        expect(stream.stream_revision).to eql 6
+        expect(stream.commit_sequence).to eql 3
+      end
     end
   end
 end

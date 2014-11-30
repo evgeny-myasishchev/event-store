@@ -57,8 +57,18 @@ class EventStore::EventStream
       persistence_engine.get_from(stream_id) :
       persistence_engine.get_from(stream_id, min_revision: min_revision)
     if commits.empty?
-      Log.debug "Opening new stream '#{stream_id}' since no commits found..."
-      @new_stream = true
+      head = persistence_engine.get_head(stream_id) if min_revision
+      if head && head[:commit_sequence] && head[:stream_revision]
+        if min_revision > head[:stream_revision] + 1
+          raise ArgumentError.new "Specified min_revision #{min_revision} is to big. Stream head revision points to #{head[:stream_revision]}."
+        end
+        Log.debug "Stream '#{stream_id}' opened with min_revision '#{min_revision}' and has no matching events. Initializing using stream head: #{head}"
+        @commit_sequence = head[:commit_sequence]
+        @stream_revision = head[:stream_revision]
+      else
+        Log.debug "Opening new stream '#{stream_id}' since no commits found..."
+        @new_stream = true
+      end
     else
       populate_stream_with commits, min_revision: min_revision
     end

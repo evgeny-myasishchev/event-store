@@ -1,8 +1,8 @@
 module EventStore
-  MAJOR = 2
+  MAJOR = 3
   MINOR = 0
   PATCH = 1
-  BUILD = 'rc1'
+  BUILD = 'b1'
   
   VERSION = [MAJOR, MINOR, PATCH, BUILD].compact.join('.')
   

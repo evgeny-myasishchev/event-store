@@ -38,6 +38,10 @@ class EventStore::Base
     EventStore::EventStream.new(stream_id, @persistence_engine, :hooks => @hooks, min_revision: min_revision)
   end
   
+  def transaction(&block)
+    persistence_engine.transaction &block
+  end
+  
   #Removes all events from the stream. Use with caution.
   def purge
     @persistence_engine.purge

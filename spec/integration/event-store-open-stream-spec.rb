@@ -25,9 +25,9 @@ describe 'EventStore::Base integration' do
       evt3 = EventStore::EventMessage.new :evt2 => true
       original_stream.add evt1
       original_stream.add evt2
-      original_stream.commit_changes
+      subject.transaction { |t| original_stream.commit_changes t }
       original_stream.add evt3
-      original_stream.commit_changes
+      subject.transaction { |t| original_stream.commit_changes t }
       
       opened_stream = subject.open_stream 'stream-221'
       expect(opened_stream.committed_events.length).to eql 3
@@ -49,14 +49,14 @@ describe 'EventStore::Base integration' do
       before(:each) do
         original_stream = subject.open_stream 'stream-221'
         original_stream.add evt1
-        original_stream.commit_changes
+        subject.transaction { |t| original_stream.commit_changes t }
         original_stream.add evt2
         original_stream.add evt3
-        original_stream.commit_changes
+        subject.transaction { |t| original_stream.commit_changes t }
         original_stream.add evt4
         original_stream.add evt5
         original_stream.add evt6
-        original_stream.commit_changes
+        subject.transaction { |t| original_stream.commit_changes t }
       end
       
       it 'should return the stream populated with all events starting from specified revision' do

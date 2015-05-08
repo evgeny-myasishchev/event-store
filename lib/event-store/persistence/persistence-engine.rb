@@ -1,6 +1,24 @@
 module EventStore::Persistence
+  
   #Abstract class that defines methods that are required to persist commits
   class PersistenceEngine
+    
+    # Abstract transaction context if supported by the persistence engine
+    class TransactionContext
+    end
+    
+    class NoTransactionContext
+    end
+    
+    # Returns true if transactions are supported by the engine
+    def supports_transactions?
+      false
+    end
+    
+    # Starts database transaction. Given block will be called with transaction context
+    def transaction(&block)
+      yield NoTransactionContext.new
+    end
     
     # Returns true if the stream exists. Returns false otherwise.
     def exists?(stream_id)

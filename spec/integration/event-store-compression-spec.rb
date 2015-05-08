@@ -17,7 +17,7 @@ describe 'EventStore::Base integration' do
       evt2 = EventStore::EventMessage.new({:evt2 => true}, {header2: 'value-2'})
       original_stream.add evt1
       original_stream.add evt2
-      original_stream.commit_changes
+      subject.persistence_engine.transaction { |t| original_stream.commit_changes t }
       
       opened_stream = subject.open_stream 'stream-221'
       expect(opened_stream.committed_events.length).to eql 2
@@ -32,7 +32,7 @@ describe 'EventStore::Base integration' do
       })
       stream = subject.open_stream 'stream-222'
       stream.add evt
-      stream.commit_changes
+      subject.persistence_engine.transaction { |t| stream.commit_changes t }
       expect(subject.open_stream('stream-222').committed_events).to include evt
     end
     
@@ -43,7 +43,7 @@ describe 'EventStore::Base integration' do
       })
       stream = subject.open_stream 'stream-222'
       stream.add evt
-      stream.commit_changes
+      subject.persistence_engine.transaction { |t| stream.commit_changes t }
       stream = subject.open_stream 'stream-222'
       expect(subject.open_stream('stream-222').committed_events).to include evt
     end

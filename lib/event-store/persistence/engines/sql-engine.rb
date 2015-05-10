@@ -11,7 +11,7 @@ module EventStore::Persistence::Engines
       end
       
       def transaction_active?
-        @db.transaction_active?
+        @db.in_transaction?
       end
     end
     
@@ -51,8 +51,8 @@ module EventStore::Persistence::Engines
     end
     
     def transaction(&block)
-      @connection.transaction do |db|
-        transaction_context = SqlTransactionContext.new db
+      @connection.transaction do
+        transaction_context = SqlTransactionContext.new @connection
         @connection.after_commit { 
           transaction_context.after_commit_hooks.each { |hook| hook.call }
         }

@@ -30,7 +30,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       block_called = false
       subject.transaction do |context|
         expect(context).to be_an_instance_of(described_class::SqlTransactionContext)
-        expect(context.db.transaction_active?).to be true
+        expect(context.db).to be_a Sequel::Database
         expect(context.transaction_active?).to be true
         block_called = true
       end
@@ -40,7 +40,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it 'should call after_commit hooks out of scope of transaction' do
       subject.transaction do |context|
         context.after_commit { 
-          expect(context.db.transaction_active?).to be false
+          expect(context.transaction_active?).to be false
         }
       end
     end

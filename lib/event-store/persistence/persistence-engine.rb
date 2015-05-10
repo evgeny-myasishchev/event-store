@@ -11,7 +11,9 @@ module EventStore::Persistence
     
     # Starts database transaction. Given block will be called with transaction context
     def transaction(&block)
-      yield NoTransactionContext.new
+      transaction_context = NoTransactionContext.new
+      yield transaction_context
+      transaction_context.after_commit_hooks.each { |h| h.call }
     end
     
     # Returns true if the stream exists. Returns false otherwise.

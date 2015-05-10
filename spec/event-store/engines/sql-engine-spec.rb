@@ -37,56 +37,12 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(block_called).to be true
     end
     
-    it 'should call after_commit hooks if committed' do
-      hook_1_called = false
-      hook_2_called = false
-      subject.transaction do |context|
-        context.after_commit { hook_1_called = true }
-        context.after_commit { hook_2_called = true }
-      end
-      expect(hook_1_called).to be true
-      expect(hook_2_called).to be true
-    end
-    
     it 'should call after_commit hooks out of scope of transaction' do
       subject.transaction do |context|
         context.after_commit { 
           expect(context.db.transaction_active?).to be false
         }
       end
-    end
-    
-    it 'should not call old after_commit hooks for next transaction' do
-      hook_1_called = false
-      hook_2_called = false
-      subject.transaction do |context|
-        context.after_commit { hook_1_called = true }
-        context.after_commit { hook_2_called = true }
-      end
-      hook_1_called = false
-      hook_2_called = false
-      
-      subject.transaction do |context|
-        # Do nothing
-      end
-      
-      expect(hook_1_called).to be false
-      expect(hook_2_called).to be false
-    end
-    
-    it 'should not call after_commit blocks if transaction has failed' do
-      hook_1_called = false
-      hook_2_called = false
-      begin
-        subject.transaction do |context|
-          context.after_commit { hook_1_called = true }
-          context.after_commit { hook_2_called = true }
-          raise 'Transaction aborted'
-        end
-      rescue
-      end
-      expect(hook_1_called).to be false
-      expect(hook_2_called).to be false
     end
   end
   

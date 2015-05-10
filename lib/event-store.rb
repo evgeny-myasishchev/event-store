@@ -34,6 +34,7 @@ module EventStore
     autoload :PersistenceEngine, 'event-store/persistence/persistence-engine'
     autoload :PersistenceFactory, 'event-store/persistence/persistence-factory'
     autoload :Serializers, 'event-store/persistence/serializers'
+    autoload :TransactionContext, 'event-store/persistence/transaction-context'
   end
   
   module Hooks

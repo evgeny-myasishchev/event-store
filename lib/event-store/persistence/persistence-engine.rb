@@ -2,13 +2,7 @@ module EventStore::Persistence
   
   #Abstract class that defines methods that are required to persist commits
   class PersistenceEngine
-    
-    # Abstract transaction context if supported by the persistence engine
-    class TransactionContext
-    end
-    
-    class NoTransactionContext
-    end
+    include EventStore::Persistence
     
     # Returns true if transactions are supported by the engine
     def supports_transactions?

@@ -94,8 +94,10 @@ class EventStore::EventStream
     @new_stream = false #After commits are committed the stream is not new anymore
 	  populate_stream_with([attempt])
 	  attempt.events.each { |evt| @uncommitted_events.delete(evt) }
-	  Log.debug "Processing pipeline hooks..."
-	  @pipeline_hooks.each { |hook| hook.post_commit(attempt) }
+    transaction_context.after_commit {
+      Log.debug "Processing pipeline hooks..."
+      @pipeline_hooks.each { |hook| hook.post_commit(attempt) }
+    }
 	  Log.debug "Done."
 	  attempt
 	end

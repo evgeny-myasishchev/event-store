@@ -7,6 +7,7 @@ module EventStore::Persistence::Engines
       attr_reader :db
       def initialize(db)
         @db = db
+        super()
       end
       
       def transaction_active?
@@ -51,7 +52,11 @@ module EventStore::Persistence::Engines
     
     def transaction(&block)
       @connection.transaction do |db|
-        yield SqlTransactionContext.new db
+        transaction_context = SqlTransactionContext.new db
+        @connection.after_commit { 
+          transaction_context.after_commit_hooks.each { |hook| hook.call }
+        }
+        yield transaction_context
       end
     end
     

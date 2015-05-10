@@ -1,7 +1,7 @@
 require 'spec-helper'
 
 describe EventStore::EventStream do
-  let(:transaction_context) { double(:transaction_context) }
+  let(:transaction_context) { EventStore::Persistence::TransactionContext.new }
   let(:persistence_engine) { double("persistence-engine", :commit => nil, :get_from => []) }
   let(:stream) { described_class.new("fake-stream-id", persistence_engine) }
   
@@ -199,6 +199,7 @@ describe EventStore::EventStream do
       expect(hook2).to receive(:post_commit).with(attempt)
       
       stream.commit_changes transaction_context
+      transaction_context.after_commit_hooks.each { |h| h.call }
     end
 
     it "should build commit with headers" do

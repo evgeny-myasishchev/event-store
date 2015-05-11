@@ -226,6 +226,10 @@ shared_examples "generic-persistence-engine" do
   end
   
   describe 'transaction' do
+    it 'should return value of the block' do
+      expect(subject.transaction { |t| 'return-value-133901' }).to eql 'return-value-133901'
+    end
+    
     it 'should call after_commit hooks if committed' do
       hook_1_called = false
       hook_2_called = false

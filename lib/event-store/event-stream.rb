@@ -86,6 +86,7 @@ class EventStore::EventStream
     # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
     # *
     def create_stream(stream_id, persistence_engine, hooks: [])
+      Log.debug "Creating new stream: #{stream_id}"
       new(stream_id, persistence_engine, hooks: hooks)
     end
     
@@ -99,6 +100,7 @@ class EventStore::EventStream
     # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
     # *
     def open_stream(stream_id, persistence_engine, min_revision: nil, hooks: [])
+      Log.debug "Opening stream: #{stream_id}"
       new(stream_id, persistence_engine, hooks: hooks, min_revision: min_revision, load: true)
     end
   end

@@ -31,47 +31,21 @@ class EventStore::EventStream
   def uncommitted_events
     @uncommitted_events_ro ||= EventStore::Infrastructure::ReadOnlyArray.new(@uncommitted_events) 
   end
-	
-  #
-  # Args:
-  # * stream_id - stream identifier. Can be generated with Identity::generate
-  # * persistence_engine - the engine to access commits	
-  #
-  # options:
-  # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
-  # * 
-  # 
-  def initialize(stream_id, persistence_engine, min_revision: nil, hooks: [])
+
+  def initialize(stream_id, persistence_engine, hooks: [], min_revision: nil, load: false)
     raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
-    @stream_id          = stream_id
+    @stream_id = stream_id
     @persistence_engine = persistence_engine
     @uncommitted_events = []
-    @pipeline_hooks     = hooks
+    @pipeline_hooks = hooks
     
-    @stream_revision    = 0
-    @commit_sequence    = 0
-    @committed_events   = []
+    @stream_revision = 0
+    @commit_sequence = 0
+    @committed_events = []
     @uncommitted_events = []
+    @new_stream = true
     
-    commits = min_revision.nil? ? 
-    persistence_engine.get_from(stream_id) :
-    persistence_engine.get_from(stream_id, min_revision: min_revision)
-    if commits.empty?
-      head = persistence_engine.get_head(stream_id) if min_revision
-      if head && head[:commit_sequence] && head[:stream_revision]
-        if min_revision > head[:stream_revision] + 1
-          raise ArgumentError.new "Specified min_revision #{min_revision} is to big. Stream head revision points to #{head[:stream_revision]}."
-        end
-        Log.debug "Stream '#{stream_id}' opened with min_revision '#{min_revision}' and has no matching events. Initializing using stream head: #{head}"
-        @commit_sequence = head[:commit_sequence]
-        @stream_revision = head[:stream_revision]
-      else
-        Log.debug "Opening new stream '#{stream_id}' since no commits found..."
-        @new_stream = true
-      end
-    else
-      populate_stream_with commits, min_revision: min_revision
-    end
+    load_existing_stream(min_revision: min_revision) if load
   end
 
   # Adds the event messages provided to the session to be tracked.
@@ -102,7 +76,57 @@ class EventStore::EventStream
     attempt
   end
   
+  class << self
+    #
+    # Args:
+    # * stream_id - stream identifier. Can be generated with Identity::generate
+    # * persistence_engine - the engine to access commits	
+    #
+    # options:
+    # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
+    # *
+    def create_stream(stream_id, persistence_engine, hooks: [])
+      new(stream_id, persistence_engine, hooks: hooks)
+    end
+    
+    #
+    # Args:
+    # * stream_id - stream identifier. Can be generated with Identity::generate
+    # * persistence_engine - the engine to access commits	
+    # * min_revision - min_revision to load the stream from. nil is the default and means that loading from initial revision.
+    #
+    # options:
+    # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
+    # *
+    def open_stream(stream_id, persistence_engine, min_revision: nil, hooks: [])
+      new(stream_id, persistence_engine, hooks: hooks, min_revision: min_revision, load: true)
+    end
+  end
+  
   private
+    def load_existing_stream min_revision: nil
+      commits = min_revision.nil? ? 
+        @persistence_engine.get_from(stream_id) :
+        @persistence_engine.get_from(stream_id, min_revision: min_revision)
+      if commits.empty?
+        head = @persistence_engine.get_head(stream_id) if min_revision
+        if head && head[:commit_sequence] && head[:stream_revision]
+          if min_revision > head[:stream_revision] + 1
+            raise ArgumentError.new "Specified min_revision #{min_revision} is to big. Stream head revision points to #{head[:stream_revision]}."
+          end
+          Log.debug "Stream '#{stream_id}' opened with min_revision '#{min_revision}' and has no matching events. Initializing using stream head: #{head}"
+          @commit_sequence = head[:commit_sequence]
+          @stream_revision = head[:stream_revision]
+        else
+          raise ArgumentError.new "Not existing stream: 'fake-stream-id'"
+        end
+      else
+        populate_stream_with commits, min_revision: min_revision
+      end
+      @new_stream = false
+      self
+    end
+  
     def populate_stream_with(commits, min_revision: nil)
       Log.debug "Populating stream '#{stream_id}' with #{commits.length} commits..."
       Log.debug "Min revision limit specified: #{min_revision}" unless min_revision.nil?

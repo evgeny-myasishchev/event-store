@@ -13,13 +13,13 @@ describe 'EventStore::Base integration' do
   }
   
   describe 'open_stream' do
-    it 'should return new stream if opening not existing stream' do
-      stream = subject.open_stream 'not-existing'
+    it 'should return new stream' do
+      stream = subject.create_stream 'not-existing'
       expect(stream.new_stream?).to be_truthy
     end
     
     it 'should return the stream populated with all events' do
-      original_stream = subject.open_stream 'stream-221'
+      original_stream = subject.create_stream 'stream-221'
       evt1 = EventStore::EventMessage.new :evt1 => true
       evt2 = EventStore::EventMessage.new :evt2 => true
       evt3 = EventStore::EventMessage.new :evt2 => true
@@ -47,7 +47,7 @@ describe 'EventStore::Base integration' do
       let(:evt6) { EventStore::EventMessage.new :evt2 => true }
       
       before(:each) do
-        original_stream = subject.open_stream 'stream-221'
+        original_stream = subject.create_stream 'stream-221'
         original_stream.add evt1
         subject.transaction { |t| original_stream.commit_changes t }
         original_stream.add evt2

@@ -25,10 +25,26 @@ describe EventStore::Base do
     end
   end
   
-  describe "open_stream" do
-    it "should initialize a new stream with persistence engine and dispatcher hook" do
+  describe "create_stream" do
+    it "should create stream with persistence engine and dispatcher hook" do
       mock_stream = double(:stream)
-      expect(EventStore::EventStream).to receive(:new) do |stream_id, pe, options|
+      expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
+        expect(stream_id).to eql "some-stream-id"
+        expect(pe).to be persistence_engine
+        expect(options[:hooks].length).to eql(1)
+        expect(options[:hooks][0]).to be_instance_of(EventStore::Hooks::DispatcherHook)
+        expect(options[:hooks][0].dispatcher).to be dispatcher
+        expect(options[:hooks][0].persistence_engine).to be persistence_engine
+        mock_stream
+      end
+      expect(store.open_stream("some-stream-id")).to eql mock_stream
+    end
+  end
+    
+  describe "open_stream" do
+    it "should open stream with persistence engine and dispatcher hook" do
+      mock_stream = double(:stream)
+      expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
         expect(stream_id).to eql "some-stream-id"
         expect(pe).to be persistence_engine
         expect(options[:hooks].length).to eql(1)
@@ -42,7 +58,7 @@ describe EventStore::Base do
       
     it "should handle min_revision option when initializing" do
       mock_stream = double(:stream)
-      expect(EventStore::EventStream).to receive(:new) do |stream_id, pe, options|
+      expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
         expect(options[:min_revision]).to eql 10
         mock_stream
       end

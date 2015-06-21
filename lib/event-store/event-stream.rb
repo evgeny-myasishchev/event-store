@@ -118,7 +118,7 @@ class EventStore::EventStream
           @commit_sequence = head[:commit_sequence]
           @stream_revision = head[:stream_revision]
         else
-          raise ArgumentError.new "Not existing stream: 'fake-stream-id'"
+          raise ArgumentError.new "Not existing stream: '#{stream_id}'"
         end
       else
         populate_stream_with commits, min_revision: min_revision

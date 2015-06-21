@@ -16,10 +16,10 @@ describe 'EventStore::Base integration' do
     it 'should rollback if any commit fails' do
       evt1 = EventStore::EventMessage.new :evt1 => true
       
-      stream1 = subject.open_stream 'stream-221'
+      stream1 = subject.create_stream 'stream-221'
       stream1.add evt1
       
-      stream2 = subject.open_stream 'stream-221'
+      stream2 = subject.create_stream 'stream-221'
       stream2.add evt1
       expect {
         subject.transaction do |t|
@@ -28,9 +28,7 @@ describe 'EventStore::Base integration' do
         end
       }.to raise_error EventStore::ConcurrencyError
       
-      actual_stream = subject.open_stream 'stream-221'
-      expect(actual_stream.stream_revision).to eql 0
-      expect(actual_stream.commit_sequence).to eql 0
+      expect(subject.stream_exists?('stream-221')).to be_falsey
     end
   end
 end

@@ -54,7 +54,7 @@ end
 
 store = EventStore.bootstrap do |with|
   with.console_logging
-  with.sql_persistence(adapter: 'sqlite', database: File.expand_path('../event-store.sqlite3', __FILE__))
+  with.in_memory_persistence
   with.synchronous_dispatcher do |commit|
     commit.events.each { |event| 
       EventStore::Base::Log.info "Dispatching event: #{event.body}" 

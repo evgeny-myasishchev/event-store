@@ -1,5 +1,4 @@
 spec/log/*.log*
-doc/db/*
-doc/log/*
+doc/*.sqlite3
 coverage
 Gemfile.lock

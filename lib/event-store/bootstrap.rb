@@ -23,6 +23,10 @@ module EventStore
         Logging::Logger.factory = factory
       end
 
+      def console_logging
+        logging(Logging::Factory)
+      end
+      
       def log4r_logging
         logging(Logging::Log4rFactory)
       end

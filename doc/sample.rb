@@ -1,76 +1,67 @@
 require 'rubygems'
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __FILE__)
 require 'bundler/setup'
-
-logs_dir = File.expand_path('../../log', __FILE__)
-FileUtils.mkdir logs_dir unless File.exists? logs_dir
-
-db_dir = File.expand_path('../../db', __FILE__)
-FileUtils.mkdir db_dir unless File.exists? db_dir
-
-#Configure logging
-require 'log4r'
-require 'log4r/yamlconfigurator'
-require 'log4r/outputter/rollingfileoutputter'
-log4r_config = YAML.load_file(File.expand_path('../log4r.yml', __FILE__))
-Log4r::YamlConfigurator.decode_yaml(log4r_config['log4r_config'])
-
 require 'event-store'
 
-module Sample
-  include EventStore
-  Log = Logging::Logger.get 'event-store::sample'
-  
+module Events
   class EmployeeHired
-    attr_reader :id
-    attr_reader :full_name
+    attr_reader :id, :full_name
     def initialize(id, full_name)
       @id, @full_name = id, full_name
     end
-    
     def to_s
       "EmployeeHired { id: #{id}; full_name: #{full_name} }"
     end
   end
   
   class EmployeeResigned
-    attr_reader :id
-    attr_reader :reason
+    attr_reader :id, :reason
     def initialize(id, reason)
       @id, @reason = id, reason
     end
-    
     def to_s
       "EmployeeResigned { id: #{id}; reason: #{reason} }"
     end
   end
+end
+
+class EmployeesService
+  include EventStore
+  include Events
   
-  def self.init_store
-    store = EventStore.bootstrap do |with|
-      with.log4r_logging
-      with.sql_persistence adapter: 'sqlite', database: 'db/event-store.sqlite3'
-      with.synchronous_dispatcher do |commit|
-        commit.events.each { |event| Log.debug "Dispatching event: #{event.body}" }
-      end
-    end
+  def initialize(store)
+    @store = store
   end
   
-  def self.hire_employee store, full_name
+  def hire_employee full_name
     employee_id = Identity.generate
-    stream = store.open_stream(employee_id)
+    stream = @store.create_stream(employee_id)
     stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)
-    stream.commit_changes
+    @store.transaction do |t|
+      stream.commit_changes t
+    end
     employee_id
   end
     
-  def self.resign_employee store, employee_id, reason
-    stream = store.open_stream(employee_id)
+  def resign_employee employee_id, reason
+    stream = @store.open_stream(employee_id)
     stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)
-    stream.commit_changes
-    employee_id
+    @store.transaction do |t|
+      stream.commit_changes t
+    end
   end
 end
 
-store = Sample.init_store
-employee_id = Sample.hire_employee store, "Vladimir"
-Sample.resign_employee store, employee_id, "Google has hired him :("
+store = EventStore.bootstrap do |with|
+  with.console_logging
+  with.sql_persistence(adapter: 'sqlite', database: File.expand_path('../event-store.sqlite3', __FILE__))
+  with.synchronous_dispatcher do |commit|
+    commit.events.each { |event| 
+      EventStore::Base::Log.info "Dispatching event: #{event.body}" 
+    }
+  end
+end
+
+employees_service = EmployeesService.new store
+employee_id = employees_service.hire_employee 'Bob'
+employees_service.resign_employee employee_id, 'Found another job'

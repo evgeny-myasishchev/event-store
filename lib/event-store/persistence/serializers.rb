@@ -44,7 +44,7 @@ module EventStore::Persistence::Serializers
     end
     
     def self.serializer
-      require 'jaml' unless defined?(YAML)
+      require 'yaml' unless defined?(YAML)
       return YAML
     end
   end

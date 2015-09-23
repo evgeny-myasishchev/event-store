@@ -1,6 +1,50 @@
 == EventStore {<img src="https://travis-ci.org/evgeny-myasishchev/event-store.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/evgeny-myasishchev/event-store] {<img src="https://codeclimate.com/github/evgeny-myasishchev/event-store.png" />}[https://codeclimate.com/github/evgeny-myasishchev/event-store] {<img src="https://codeclimate.com/github/evgeny-myasishchev/event-store/coverage.png" />}[https://codeclimate.com/github/evgeny-myasishchev/event-store]
-Ruby implementation of the event store. Inspired by NEventStore. Documentation is not available yet so please see doc/sample.rb.
+Ruby implementation of the event store. Inspired by NEventStore.
 
 === Installation (Gemfile)
 
   gem 'event-store', github: 'evgeny-myasishchev/event-store'
+  
+=== Sample
+
+  # Bootstrap
+  store = EventStore.bootstrap do |with|
+    with.console_logging
+    with.in_memory_persistence
+    with.synchronous_dispatcher do |commit|
+      commit.events.each { |event| 
+        # TODO: Dispatch
+      }
+    end
+  end
+  
+  # Create new stream
+  stream = store.create_stream(employee_id)
+  stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)
+  store.transaction do |t|
+    stream.commit_changes t
+  end
+  
+  # Add new events to existing stream
+  stream = store.open_stream(employee_id)
+  stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)
+  @store.transaction do |t|
+    stream.commit_changes t
+  end
+
+A complete sample is here: link:doc/sample.rb
+
+=== General Features
+
+* SQL persistence 
+* Atomic multistream commits
+* Synchronous events dispatching
+* Asynchronous events dispatching
+* JSON, YAML and Marshal serialization
+* Compression
+
+=== Planned
+
+* NOSQL persistence
+* Events polling
+* Documentation

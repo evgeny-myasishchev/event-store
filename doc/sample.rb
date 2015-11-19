@@ -4,25 +4,8 @@ require 'bundler/setup'
 require 'event-store'
 
 module Events
-  class EmployeeHired
-    attr_reader :id, :full_name
-    def initialize(id, full_name)
-      @id, @full_name = id, full_name
-    end
-    def to_s
-      "EmployeeHired { id: #{id}; full_name: #{full_name} }"
-    end
-  end
-  
-  class EmployeeResigned
-    attr_reader :id, :reason
-    def initialize(id, reason)
-      @id, @reason = id, reason
-    end
-    def to_s
-      "EmployeeResigned { id: #{id}; reason: #{reason} }"
-    end
-  end
+  EmployeeHired = Struct.new(:id, :full_name)  
+  EmployeeResigned = Struct.new(:id, :reason)
 end
 
 class EmployeesService

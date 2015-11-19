@@ -37,7 +37,7 @@ A complete sample is here: link:doc/sample.rb
 === General Features
 
 * SQL persistence 
-* Atomic multistream commits
+* Atomic multistream commits (if supported by underlying persistance engine)
 * Synchronous events dispatching
 * Asynchronous events dispatching
 * JSON, YAML and Marshal serialization

@@ -67,7 +67,7 @@ module EventStore::Persistence
     def init_engine
     end
 
-    #Remove all events from the stream
+    #Remove all events from the the streams
     def purge
       raise "Not implemented"
     end

@@ -1,7 +1,8 @@
 module EventStore::Persistence::Engines
   class InMemoryEngine < EventStore::Persistence::PersistenceEngine
     def initialize
-      @streams_store         = {}
+      @streams_store = {}
+      @checkpoint_number_sequence = 0
     end
     
     def exists?(stream_id)
@@ -10,10 +11,8 @@ module EventStore::Persistence::Engines
     
     def get_from(stream_id, min_revision: nil)
       stream_store(stream_id)
-      .select { |commit| min_revision == nil || commit.stream_revision >= min_revision  }
-      .sort do |left, right|
-        left.commit_sequence <=> right.commit_sequence
-      end
+        .select { |commit| min_revision == nil || commit.stream_revision >= min_revision  }
+        .sort_by { |c| c.checkpoint_number }
     end
     
     def get_head(stream_id)
@@ -38,8 +37,10 @@ module EventStore::Persistence::Engines
     end
 
     def commit(attempt)
-      stream_store(attempt.stream_id) << attempt
-    end    
+      commit = EventStore::Commit.new attempt.hash.merge checkpoint_number: @checkpoint_number_sequence += 1
+      stream_store(attempt.stream_id) << commit
+      commit
+    end
     
     def purge
       @streams_store = {}

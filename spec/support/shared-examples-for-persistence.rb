@@ -117,7 +117,7 @@ shared_examples "generic-persistence-engine" do
       commit2 = subject.commit build_commit("stream-2", "commit-2")
       
       expect(commit1.checkpoint_number).not_to be_nil
-      expect(commit2).to satisfy {|c| c.checkpoint_number == commit1.checkpoint_number + 1 }
+      expect(commit2.checkpoint_number).to eql commit1.checkpoint_number + 1
     end
 
     it "should persist events" do

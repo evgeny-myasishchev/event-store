@@ -56,7 +56,7 @@ module EventStore
     end
     
     def to_s
-      %(Commit { stream_id: #{stream_id}, commit_id: #{commit_id}, commit_sequence: #{commit_sequence}, stream_revision: #{stream_revision}, events.length: #{events.length} })
+      %(Commit { checkpoint_number: #{checkpoint_number}, stream_id: #{stream_id}, commit_id: #{commit_id}, commit_sequence: #{commit_sequence}, stream_revision: #{stream_revision}, events.length: #{events.length} })
     end
     
     class << self

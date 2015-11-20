@@ -160,8 +160,8 @@ module EventStore::Persistence::Engines
       def prepare_statements storage
         storage.
           where('stream_id = :stream_id and (stream_revision >= :min_revision or :min_revision is NULL)', stream_id: :$stream_id, min_revision: :$min_revision).
-          order(:commit_sequence).
-          prepare(:select, :checkpoint_number)
+          order(:checkpoint_number).
+          prepare(:select, :select_from_stream)
       end
   end
 end

@@ -23,42 +23,43 @@ shared_examples "generic-persistence-engine" do
   end
 
   it "should maintain sequental checkpoint_number for each commit" do
-    100.times do |i|
-      commit_all(subject, 
-        build_commit("stream-1", "commit-#{i}"),
-        build_commit("stream-2", "commit-#{i}"))
+    30.times do |i|
+      commit_all(subject,
+        build_commit("stream-1", "commit-#{i.to_s.rjust(3, '0')}"),
+        build_commit("stream-2", "commit-#{i.to_s.rjust(3, '0')}"))
     end
 
-    commits = subject.get_from("stream-1").concat(subject.get_from("stream-2")).sort_by { |c| [c.stream_id, c.commit_id] }
+    commits = subject.get_from("stream-1").concat(subject.get_from("stream-2")).sort_by { |c| [c.commit_id, c.stream_id] }
     commits.inject { |prev, current|
-      expect(current.checkpoint_number).to eql prev.checkpoint_number -= 1
+      expect(current.checkpoint_number).to eql prev.checkpoint_number + 1
+      current
     }
   end
   
   describe "get_from" do
-    it "should return commits ordered by commit_sequence" do
-      commit1 = build_commit("stream-1", "commit-1") { |c| c[:commit_sequence] = 1 }
-      commit2 = build_commit("stream-1", "commit-2") { |c| c[:commit_sequence] = 2 }
-      commit3 = build_commit("stream-1", "commit-3") { |c| c[:commit_sequence] = 3 }
+    it 'should return commits ordered by checkpoint_number' do
+      commit1 = build_commit('stream-1', 'commit-1')
+      commit2 = build_commit('stream-1', 'commit-2')
+      commit3 = build_commit('stream-1', 'commit-3')
       
       commit_all(subject, commit3, commit1, commit2)
       
       stream_commits = subject.get_from("stream-1")
-      expect(stream_commits[0]).to eql commit1
-      expect(stream_commits[1]).to eql commit2
-      expect(stream_commits[2]).to eql commit3
+      expect(stream_commits[0]).to eql commit3
+      expect(stream_commits[1]).to eql commit1
+      expect(stream_commits[2]).to eql commit2
     end
 
-    it 'should retrieve commits limiting to min revision inclusive' do      
-      commit1 = build_commit("stream-1", "commit-1")
-      commit2 = build_commit("stream-1", "commit-2")
-      commit3 = build_commit("stream-1", "commit-3")
-      commit4 = build_commit("stream-1", "commit-4")
+    it 'should retrieve commits limiting to min revision inclusive' do
+      commit1 = build_commit('stream-1', 'commit-1')
+      commit2 = build_commit('stream-1', 'commit-2')
+      commit3 = build_commit('stream-1', 'commit-3')
+      commit4 = build_commit('stream-1', 'commit-4')
 
       commit_all(subject, commit1, commit2, commit3, commit4)
 
-      stream_commits = subject.get_from("stream-1", min_revision: 3)
-      expect(stream_commits.length).to eql(2)      
+      stream_commits = subject.get_from('stream-1', min_revision: 3)
+      expect(stream_commits.length).to eql(2)
       expect(stream_commits[0]).to eql commit3
       expect(stream_commits[1]).to eql commit4
     end

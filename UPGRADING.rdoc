@@ -1,0 +1,5 @@
+== Upgrading to 3.0.1.b3
+
+1) Dispatching concept removed. Update code accordingly.
+2) SQL persistence schema changes
+  * has_been_dispatched - column removed  

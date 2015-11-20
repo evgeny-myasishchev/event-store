@@ -101,14 +101,16 @@ module EventStore::Persistence::Engines
       unless @connection.table_exists? @options[:table]
         Log.debug "Creating table: #{@options[:table]}"
         @connection.create_table @options[:table] do
-          String :stream_id, :size => 50, :null=>false, :index => true
-          String :commit_id, :primary_key=>true, :size => 50, :null=>false
+          primary_key :checkpoint_number, type: Bignum
+          String :stream_id, :size => 50, :null=>false
+          String :commit_id, :size => 50, :null=>false
           Integer :commit_sequence, :null=>false
           Integer :stream_revision, :null=>false
           DateTime :commit_timestamp, :null=>false
           File :events, :null=>false
           File :headers, :null=>false
           index [:stream_id, :commit_sequence], unique: true
+          index [:stream_id, :commit_id], unique: true
           index [:stream_id, :stream_revision], unique: true
         end
       end

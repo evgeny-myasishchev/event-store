@@ -50,14 +50,24 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it "should have all columns to store commit" do
       columns = subject.connection.schema(:'event-store-commits')
       
+      check_column(:checkpoint_number, columns) do |column|
+        expect(column[:allow_null]).to be_falsey
+        expect(column[:type]).to eql :integer
+
+        #sqlite does not support autoincrement on bigint
+        #it's using for testing only so not a big deal.
+        expect(column[:db_type]).to eql 'bigint' unless subject.connection.database_type == :sqlite
+
+        expect(column[:primary_key]).to be_truthy
+      end
+
       check_column(:stream_id, columns) do |column|
         expect(column[:allow_null]).to be_falsey
         expect(column[:type]).to eql :string
       end
       
       check_column(:commit_id, columns) do |column|
-        expect(column[:allow_null]).to be_falsey
-        expect(column[:primary_key]).to be_truthy
+        expect(column[:allow_null]).to be_falsey        
         expect(column[:type]).to eql :string
       end
             
@@ -85,26 +95,6 @@ describe EventStore::Persistence::Engines::SqlEngine do
         expect(column[:allow_null]).to be_falsey
         expect(column[:type]).to eql :blob
       end
-    end
-    
-    it "stream_id column should be indexed" do
-      indices = subject.connection.indexes(:'event-store-commits')
-      expect(indices.key?(:"event-store-commits_stream_id_index")).to be_truthy
-      expect(indices[:"event-store-commits_stream_id_index"][:columns]).to eql [:stream_id]
-    end
-
-    it "stream_id and commit_sequence should be indexed with unique key to maintain optimistic concurrency" do
-      indices = subject.connection.indexes(:'event-store-commits')
-      expect(indices.key?(:"event-store-commits_stream_id_commit_sequence_index")).to be_truthy
-      expect(indices[:"event-store-commits_stream_id_commit_sequence_index"][:columns]).to eql [:stream_id, :commit_sequence]
-      expect(indices[:"event-store-commits_stream_id_commit_sequence_index"][:unique]).to be_truthy
-    end
-
-    it "stream_id and stream_revision should be indexed with unique key to maintain optimistic concurrency" do
-      indices = subject.connection.indexes(:'event-store-commits')
-      expect(indices.key?(:"event-store-commits_stream_id_stream_revision_index")).to be_truthy
-      expect(indices[:"event-store-commits_stream_id_stream_revision_index"][:columns]).to eql [:stream_id, :stream_revision]
-      expect(indices[:"event-store-commits_stream_id_stream_revision_index"][:unique]).to be_truthy
     end
   end
   

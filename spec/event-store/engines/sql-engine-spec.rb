@@ -28,12 +28,12 @@ describe EventStore::Persistence::Engines::SqlEngine do
   describe 'transaction' do
     it 'should start transaction and yield supplied block' do
       block_called = false
-      subject.transaction do |context|        
+      subject.transaction do |context|
         expect(subject.connection).to be_in_transaction
         block_called = true
       end
       expect(block_called).to be true
-    end    
+    end
   end
   
   describe "schema" do
@@ -67,7 +67,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       end
       
       check_column(:commit_id, columns) do |column|
-        expect(column[:allow_null]).to be_falsey        
+        expect(column[:allow_null]).to be_falsey
         expect(column[:type]).to eql :string
       end
             

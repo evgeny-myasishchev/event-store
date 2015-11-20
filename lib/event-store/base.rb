@@ -1,7 +1,11 @@
 class EventStore::Base
   Log = EventStore::Logging::Logger.get 'event-store'
+
+  extend Forwardable
   
   attr_reader :persistence_engine
+
+  delegate :for_each_commit => :persistence_engine
     
   def initialize(persistence_engine)
     @persistence_engine = persistence_engine

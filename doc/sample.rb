@@ -39,3 +39,10 @@ end
 employees_service = EmployeesService.new store
 employee_id = employees_service.hire_employee 'Bob'
 employees_service.resign_employee employee_id, 'Found another job'
+
+puts 'Committed events'
+store.for_each_commit do |commit|
+  commit.events.each do |evt|
+    puts evt.body
+  end
+end

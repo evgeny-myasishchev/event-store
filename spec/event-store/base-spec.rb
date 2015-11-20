@@ -1,8 +1,20 @@
 require 'spec-helper'
 
 describe EventStore::Base do
-  let(:persistence_engine) { double(:persistence_engine) }
+  let(:persistence_engine) { EventStore::Persistence::Engines::InMemoryEngine }
   let(:store) { described_class.new(persistence_engine) }
+
+  describe 'for_each_commit' do
+    it 'should be delegated to persistence_engine' do
+      commit = double(:commit)
+      expect(persistence_engine).to receive(:for_each_commit) do |&block|
+        block.call commit
+      end
+      store.for_each_commit do |c|
+        expect(c).to be commit
+      end
+    end
+  end
   
   describe "stream_exists?" do
     it "should use persistence engine to check if the stream exists" do

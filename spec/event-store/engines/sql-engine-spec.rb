@@ -26,24 +26,14 @@ describe EventStore::Persistence::Engines::SqlEngine do
   end
   
   describe 'transaction' do
-    it 'should yield supplied block with an instance of the sql transaction context' do
+    it 'should start transaction and yield supplied block' do
       block_called = false
-      subject.transaction do |context|
-        expect(context).to be_an_instance_of(described_class::SqlTransactionContext)
-        expect(context.db).to be_a Sequel::Database
-        expect(context.transaction_active?).to be true
+      subject.transaction do |context|        
+        expect(subject.connection).to be_in_transaction
         block_called = true
       end
       expect(block_called).to be true
-    end
-    
-    it 'should call after_commit hooks out of scope of transaction' do
-      subject.transaction do |context|
-        context.after_commit { 
-          expect(context.transaction_active?).to be false
-        }
-      end
-    end
+    end    
   end
   
   describe "schema" do
@@ -128,7 +118,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(lambda { engine.get_from("some-stream-id") }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
       expect(lambda { engine.get_undispatched_commits }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
       expect(lambda { engine.mark_commit_as_dispatched(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      expect(lambda { engine.commit(double(:transaction_context), double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
+      expect(lambda { engine.commit(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
     end
   end
   
@@ -139,14 +129,8 @@ describe EventStore::Persistence::Engines::SqlEngine do
       end
     }
     
-    it 'should fail if there is no active transaction' do
-      expect { subject.commit double(:transaction_context, :'transaction_active?' => false), attempt }.to raise_error 'Commit should be performed in scope of transaction.'
-      table = subject.connection[:'event-store-commits']
-      expect(table.count).to eql 0
-    end
-    
     it "inserts the record into the database with dispatched flag set to false" do
-      subject.transaction {|t| subject.commit t, attempt }
+      subject.commit attempt
       table = subject.connection[:'event-store-commits']
       expect(table.count).to eql 1
       commit = table.first
@@ -162,7 +146,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
     it "uses the serializer to store events and headers" do
       expect(subject.serializer).to receive(:serialize).with(attempt.events).and_call_original
       expect(subject.serializer).to receive(:serialize).with(attempt.headers).and_call_original
-      subject.transaction {|t| subject.commit t, attempt}
+      subject.commit attempt
       table = subject.connection[:'event-store-commits']
       expect(table.count).to eql 1
       commit = table.first
@@ -178,7 +162,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       attempt = build_commit("stream-1", "commit-1", {e: 'v'})
       expect(subject.serializer).to receive(:serialize).with(attempt.events) { binary_data.pack('C*') }
       expect(subject.serializer).to receive(:serialize).with(attempt.headers) { binary_data.pack('C*') }
-      subject.transaction {|t| subject.commit t, attempt}
+      subject.commit attempt
       table = subject.connection[:'event-store-commits']
       commit = table.first
       
@@ -194,27 +178,24 @@ describe EventStore::Persistence::Engines::SqlEngine do
         :stream_revision => 1
       }
       attempt = EventStore::Commit.new commit_args
-      subject.transaction {|t| subject.commit t, attempt}
+      subject.commit attempt
 
       commit_args[:stream_revision] = 2
       attempt = EventStore::Commit.new commit_args
-      subject.transaction {|t| 
-        expect { subject.commit(t, attempt) }.to raise_error(EventStore::ConcurrencyError)
-      }
+      
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
 
       commit_args[:stream_revision] = 1
       commit_args[:commit_sequence] = 2
       attempt = EventStore::Commit.new commit_args
-      subject.transaction {|t| 
-        expect { subject.commit(t, attempt) }.to raise_error(EventStore::ConcurrencyError)
-      }
+      expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
     end
   end
   
   describe "mark_commit_as_dispatched" do
     it "should set dispatched flag to true" do
       attempt = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
-      subject.transaction { |t| subject.commit t, attempt } 
+      subject.commit attempt
       subject.mark_commit_as_dispatched attempt
       
       commit = subject.connection[:'event-store-commits'].first

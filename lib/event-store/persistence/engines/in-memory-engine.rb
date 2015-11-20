@@ -52,7 +52,7 @@ module EventStore::Persistence::Engines
       @undispatched_store.delete(commit)
     end
 
-    def commit(transaction_context, attempt)
+    def commit(attempt)
       @undispatched_store << attempt
       stream_store(attempt.stream_id) << attempt
     end    

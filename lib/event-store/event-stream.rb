@@ -57,22 +57,18 @@ class EventStore::EventStream
 
   # Commits the changes to durable storage.
   #  => returns commit
-  def commit_changes(transaction_context, headers = {})
+  def commit_changes(headers = {})
     unless uncommitted_events.length > 0
       Log.warn "No uncommitted events found for stream '#{stream_id}'. Commit skipped."
       return
     end
     Log.debug "Committing '#{stream_id}'. #{@uncommitted_events.length} uncommitted events to commit."
     attempt = EventStore::Commit.build(self, @uncommitted_events.dup, headers)
-    @persistence_engine.commit(transaction_context, attempt)
+    @persistence_engine.commit(attempt)
     @new_stream = false #After commits are committed the stream is not new anymore
     populate_stream_with([attempt])
     attempt.events.each { |evt| @uncommitted_events.delete(evt) }
-    transaction_context.after_commit {
-      Log.debug "Processing pipeline hooks..."
-      @pipeline_hooks.each { |hook| hook.post_commit(attempt) }
-    }
-    Log.debug "Done."
+    Log.debug 'Done.'
     attempt
   end
   

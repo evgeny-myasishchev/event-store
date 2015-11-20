@@ -20,18 +20,14 @@ class EmployeesService
     employee_id = Identity.generate
     stream = @store.create_stream(employee_id)
     stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)
-    @store.transaction do |t|
-      stream.commit_changes t
-    end
+    stream.commit_changes
     employee_id
   end
     
   def resign_employee employee_id, reason
     stream = @store.open_stream(employee_id)
     stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)
-    @store.transaction do |t|
-      stream.commit_changes t
-    end
+    stream.commit_changes
   end
 end
 

@@ -226,52 +226,13 @@ shared_examples "generic-persistence-engine" do
   end
   
   describe 'transaction' do
-    it 'should return value of the block' do
-      expect(subject.transaction { |t| 'return-value-133901' }).to eql 'return-value-133901'
-    end
-    
-    it 'should call after_commit hooks if committed' do
-      hook_1_called = false
-      hook_2_called = false
-      subject.transaction do |context|
-        context.after_commit { hook_1_called = true }
-        context.after_commit { hook_2_called = true }
-      end
-      expect(hook_1_called).to be true
-      expect(hook_2_called).to be true
-    end
-    
-    it 'should not call old after_commit hooks for next transaction' do
-      hook_1_called = false
-      hook_2_called = false
-      subject.transaction do |context|
-        context.after_commit { hook_1_called = true }
-        context.after_commit { hook_2_called = true }
-      end
-      hook_1_called = false
-      hook_2_called = false
-      
-      subject.transaction do |context|
-        # Do nothing
-      end
-      
-      expect(hook_1_called).to be false
-      expect(hook_2_called).to be false
-    end
-    
-    it 'should not call after_commit blocks if transaction has failed' do
-      hook_1_called = false
-      hook_2_called = false
-      begin
-        subject.transaction do |context|
-          context.after_commit { hook_1_called = true }
-          context.after_commit { hook_2_called = true }
-          raise 'Transaction aborted'
+    it 'should return value of the block if transactions are supported' do
+      expect(subject).to satisfy do |s|
+        if subject.supports_transactions?
+          expect(subject.transaction { |t| 'return-value-133901' }).to eql 'return-value-133901'
         end
-      rescue
+        true
       end
-      expect(hook_1_called).to be false
-      expect(hook_2_called).to be false
     end
   end
 end

@@ -12,10 +12,10 @@ class EventStore::Base
   # Obtains all undispatched commits and dispatch them. Mark each commit as dispatched on success.
   # This is usefull at startup stage.
   def dispatch_undispatched
-    Log.info "Dispatching undispatched commits..."
+    Log.info 'Dispatching undispatched commits...'
     undispatched = @persistence_engine.get_undispatched_commits
     if undispatched.length == 0
-      Log.info "No undispatched commits found."
+      Log.info 'No undispatched commits found.'
       return
     end
     Log.debug "#{undispatched.length} found."
@@ -23,7 +23,7 @@ class EventStore::Base
       Log.debug "Dispatching commit '#{commit.commit_id}'..."
       @dispatcher.schedule_dispatch(commit)
     end
-    Log.info "All undispatched commits dispatched."
+    Log.info 'All undispatched commits dispatched.'
   end
   
   # Returns true if the stream exists.

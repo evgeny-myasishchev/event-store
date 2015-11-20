@@ -3,19 +3,6 @@ require 'sequel'
 module EventStore::Persistence::Engines
   
   class SqlEngine < EventStore::Persistence::PersistenceEngine
-    class SqlTransactionContext < EventStore::Persistence::PersistenceEngine::TransactionContext
-      attr_reader :db
-      def initialize(db)
-        @db = db
-        super()
-      end
-      
-      def transaction_active?
-        @db.in_transaction?
-      end
-    end
-    
-    
     class EngineNotInitialized < ::StandardError
       def initialize
         super("The engine has not been initialized. Please make sure the engine is initialized prior to using it. Initialization can be done with 'init_engine' method")
@@ -52,11 +39,7 @@ module EventStore::Persistence::Engines
     
     def transaction(&block)
       @connection.transaction do
-        transaction_context = SqlTransactionContext.new @connection
-        @connection.after_commit { 
-          transaction_context.after_commit_hooks.each { |hook| hook.call }
-        }
-        yield transaction_context
+        yield
       end
     end
     
@@ -108,9 +91,8 @@ module EventStore::Persistence::Engines
 
     #Writes the to-be-commited events provided to the underlying persistence mechanism.
     # * attempt - the series of events and associated metadata to be commited.
-    def commit(transaction_context, attempt)
+    def commit(attempt)
       ensure_initialized!
-      raise 'Commit should be performed in scope of transaction.' unless transaction_context.transaction_active?
       Log.debug("Committing attempt #{attempt}")
       begin
         @storage.insert({

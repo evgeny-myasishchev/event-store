@@ -11,10 +11,7 @@ module EventStore::Persistence
     
     # Starts database transaction. Given block will be called with transaction context
     def transaction(&block)
-      transaction_context = NoTransactionContext.new
-      result = yield transaction_context
-      transaction_context.after_commit_hooks.each { |h| h.call }
-      result
+      raise "Transactions are not supported by #{self}."
     end
     
     # Returns true if the stream exists. Returns false otherwise.

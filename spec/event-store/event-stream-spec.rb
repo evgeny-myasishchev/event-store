@@ -1,7 +1,6 @@
 require 'spec-helper'
 
 describe EventStore::EventStream do
-  let(:transaction_context) { EventStore::Persistence::TransactionContext.new }
   let(:persistence_engine) { double("persistence-engine", :commit => nil, :get_from => []) }
   
   describe "add" do
@@ -143,15 +142,15 @@ describe EventStore::EventStream do
       attempt = double(:attempt, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
       expect(EventStore::Commit).to receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
-      expect(persistence_engine).to receive(:commit).with(transaction_context, attempt)
+      expect(persistence_engine).to receive(:commit).with(attempt)
       
-      expect(stream.commit_changes(transaction_context)).to eql attempt
+      expect(stream.commit_changes()).to eql attempt
     end
     
     it "should do nothing if no uncommited_events" do
       expect(EventStore::Commit).not_to receive(:build)
       expect(persistence_engine).not_to receive(:commit)
-      stream.commit_changes(transaction_context)
+      stream.commit_changes()
     end
     
     it "should populate stream with new events and remove them from uncommited" do
@@ -175,7 +174,7 @@ describe EventStore::EventStream do
       attempt = double(:attempt, stream_revision: 5, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
       allow(EventStore::Commit).to receive(:build) { attempt }
       
-      stream.commit_changes transaction_context
+      stream.commit_changes
       
       expect(stream.uncommitted_events).to be_empty
       expect(stream.committed_events.length).to eql 5
@@ -188,38 +187,24 @@ describe EventStore::EventStream do
       evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
-      commit = stream.commit_changes transaction_context
+      commit = stream.commit_changes
       expect(commit.events.length).to eql(2)
       expect(commit.events).to include evt1
       expect(commit.events).to include evt2
-    end
-    
-    it "should invoke pipeline_hooks after commit" do
-      hook1   = double(:hook1), hook2 = double(:hook2)
-      stream = described_class.create_stream(EventStore::Identity::generate, persistence_engine, :hooks => [hook1, hook2])
-      attempt = double(:attempt, stream_revision: 1, :commit_id => "commit-1", :commit_sequence => 1, :events => [])
-      allow(EventStore::Commit).to receive(:build) { attempt }
-      stream.add(double("event-1"))
-      
-      expect(hook1).to receive(:post_commit).with(attempt)
-      expect(hook2).to receive(:post_commit).with(attempt)
-      
-      stream.commit_changes transaction_context
-      transaction_context.after_commit_hooks.each { |h| h.call }
     end
 
     it "should build commit with headers" do
       evt1 = double("event-1")
       stream.add(evt1)
       
-      commit = stream.commit_changes transaction_context,  header1: "header-1", header2: "header-2"
+      commit = stream.commit_changes header1: "header-1", header2: "header-2"
       expect(commit.headers).to eql header1: "header-1", header2: "header-2"
     end
     
     it "should set is new to false" do
       expect(stream).to be_new_stream
       stream.add(double("event-1"))
-      stream.commit_changes transaction_context
+      stream.commit_changes
       expect(stream).not_to be_new_stream
     end
   end

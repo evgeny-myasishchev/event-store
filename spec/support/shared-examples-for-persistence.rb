@@ -21,20 +21,6 @@ shared_examples "generic-persistence-engine" do
     expect(stream2_commits[0]).to eql commit21
     expect(stream2_commits[1]).to eql commit22
   end
-
-  it "should persist commits as undispatched for all streams" do
-    commit1 = build_commit("stream-1", "commit-1")
-    commit2 = build_commit("stream-1", "commit-2")
-    commit3 = build_commit("stream-2", "commit-3")
-
-    commit_all(subject, commit1, commit2, commit3)
-
-    undispatched = subject.get_undispatched_commits
-    expect(undispatched.length).to eql(3)
-    expect(undispatched[0]).to eql commit1
-    expect(undispatched[1]).to eql commit2
-    expect(undispatched[2]).to eql commit3
-  end
   
   describe "get_from" do
     it "should return commits ordered by commit_sequence" do
@@ -111,29 +97,6 @@ shared_examples "generic-persistence-engine" do
     end
   end
   
-  describe "get_undispatched_commits" do
-    it "should return commits ordered by commit_sequence in scope of the stream" do
-      commit11 = build_commit("stream-1", "commit-11") { |c| c[:commit_sequence] = 1 }
-      commit12 = build_commit("stream-1", "commit-12") { |c| c[:commit_sequence] = 2 }
-      commit13 = build_commit("stream-1", "commit-13") { |c| c[:commit_sequence] = 3 }
-
-      commit21 = build_commit("stream-2", "commit-21") { |c| c[:commit_sequence] = 1 }
-      commit22 = build_commit("stream-2", "commit-22") { |c| c[:commit_sequence] = 2 }
-      commit23 = build_commit("stream-2", "commit-23") { |c| c[:commit_sequence] = 3 }
-      
-      commit_all(subject, commit13, commit11, commit12)
-      commit_all(subject, commit23, commit21, commit22)
-      
-      stream_commits = subject.get_undispatched_commits
-      expect(stream_commits[0]).to eql commit11
-      expect(stream_commits[1]).to eql commit12
-      expect(stream_commits[2]).to eql commit13
-      expect(stream_commits[3]).to eql commit21
-      expect(stream_commits[4]).to eql commit22
-      expect(stream_commits[5]).to eql commit23
-    end
-  end
-  
   describe "commit" do
     it "should persist events" do
       commit1 = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
@@ -175,25 +138,7 @@ shared_examples "generic-persistence-engine" do
       actual2 = subject.get_from("stream-2")[0]
       expect(actual2.headers).to eql commit2.headers
     end
-  end
-  
-  describe "mark_commit_as_dispatched" do
-    it "should no longer return them with undispatched list" do
-      commit1 = build_commit("stream-1", "commit-1")
-      commit2 = build_commit("stream-1", "commit-2")
-
-      commit_all(subject, commit1, commit2)
-      
-      #Just make sure they are initially undispatched
-      expect(subject.get_undispatched_commits.length).to eql(2)
-      
-      subject.mark_commit_as_dispatched(commit1)
-      
-      undispatched = subject.get_undispatched_commits
-      expect(undispatched.length).to eql(1)
-      expect(undispatched).to include commit2
-    end
-  end  
+  end 
   
   describe "purge" do
     before(:each) do
@@ -207,10 +152,6 @@ shared_examples "generic-persistence-engine" do
     it "should remove all commits for all streams" do
       expect(subject.get_from("stream-1").length).to eql(0)
       expect(subject.get_from("stream-0").length).to eql(0)
-    end
-    
-    it "should also remove all undispatched commits" do
-      expect(subject.get_undispatched_commits.length).to eql(0)
     end
   end
   

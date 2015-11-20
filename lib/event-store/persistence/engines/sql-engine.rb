@@ -74,21 +74,6 @@ module EventStore::Persistence::Engines
       nil
     end
 
-    #Gets a set of commits that has not yet been dispatched.
-    # => The set of commits to be dispatched.
-    def get_undispatched_commits()
-      ensure_initialized!
-      map_to_commits @connection.call(:select_undispatched)
-    end
-
-    #Marks the commit specified as dispatched.
-    # * commit - The commit to be marked as dispatched.
-    def mark_commit_as_dispatched(commit)
-      ensure_initialized!
-      @connection.call(:mark_as_dispatched, commit_id: commit.commit_id)
-      nil
-    end
-
     #Writes the to-be-commited events provided to the underlying persistence mechanism.
     # * attempt - the series of events and associated metadata to be commited.
     def commit(attempt)
@@ -121,7 +106,6 @@ module EventStore::Persistence::Engines
           Integer :commit_sequence, :null=>false
           Integer :stream_revision, :null=>false
           DateTime :commit_timestamp, :null=>false
-          Boolean :has_been_dispatched, :null=>false, :default => false
           File :events, :null=>false
           File :headers, :null=>false
           index [:stream_id, :commit_sequence], unique: true
@@ -172,16 +156,9 @@ module EventStore::Persistence::Engines
       
       def prepare_statements storage
         storage.
-          filter(commit_id: :$commit_id).
-          prepare(:update, :mark_as_dispatched, :has_been_dispatched => true)
-        storage.
           where('stream_id = :stream_id and (stream_revision >= :min_revision or :min_revision is NULL)', stream_id: :$stream_id, min_revision: :$min_revision).
           order(:commit_sequence).
           prepare(:select, :select_from_stream)
-        storage.
-          filter(has_been_dispatched: false).
-          order(:stream_id).order_append(:commit_sequence).
-          prepare(:select, :select_undispatched)
       end
   end
 end

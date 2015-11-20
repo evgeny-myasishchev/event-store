@@ -75,11 +75,6 @@ describe EventStore::Persistence::Engines::SqlEngine do
         expect(column[:allow_null]).to be_falsey
         expect(column[:type]).to eql :datetime
       end
-      
-      check_column(:has_been_dispatched, columns) do |column|
-        expect(column[:allow_null]).to be_falsey
-        expect(column[:type]).to eql :boolean
-      end
 
       check_column(:headers, columns) do |column|
         expect(column[:allow_null]).to be_falsey
@@ -116,8 +111,6 @@ describe EventStore::Persistence::Engines::SqlEngine do
   context "not initialized" do
     it "should raise EngineNotInitialized error for all engine methods" do
       expect(lambda { engine.get_from("some-stream-id") }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      expect(lambda { engine.get_undispatched_commits }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
-      expect(lambda { engine.mark_commit_as_dispatched(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
       expect(lambda { engine.commit(double(:commit)) }).to raise_error(EventStore::Persistence::Engines::SqlEngine::EngineNotInitialized)
     end
   end
@@ -129,7 +122,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       end
     }
     
-    it "inserts the record into the database with dispatched flag set to false" do
+    it "inserts the record into the database" do
       subject.commit attempt
       table = subject.connection[:'event-store-commits']
       expect(table.count).to eql 1
@@ -140,7 +133,6 @@ describe EventStore::Persistence::Engines::SqlEngine do
       expect(commit[:stream_revision]).to eql attempt.stream_revision
       #Comparing usec because it may come from the database with slightly different nsec
       expect(commit[:commit_timestamp].usec).to eql attempt.commit_timestamp.usec
-      expect(commit[:has_been_dispatched]).to be_falsey
     end
     
     it "uses the serializer to store events and headers" do
@@ -189,17 +181,6 @@ describe EventStore::Persistence::Engines::SqlEngine do
       commit_args[:commit_sequence] = 2
       attempt = EventStore::Commit.new commit_args
       expect { subject.commit(attempt) }.to raise_error(EventStore::ConcurrencyError)
-    end
-  end
-  
-  describe "mark_commit_as_dispatched" do
-    it "should set dispatched flag to true" do
-      attempt = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
-      subject.commit attempt
-      subject.mark_commit_as_dispatched attempt
-      
-      commit = subject.connection[:'event-store-commits'].first
-      expect(commit[:has_been_dispatched]).to be_truthy
     end
   end
   

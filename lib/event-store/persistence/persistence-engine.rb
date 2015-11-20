@@ -42,18 +42,6 @@ module EventStore::Persistence
       raise "Not implemented"
     end
 
-    #Gets a set of commits that has not yet been dispatched.
-    # => The set of commits to be dispatched.
-    def get_undispatched_commits()
-      raise "Not implemented"
-    end
-
-    #Marks the commit specified as dispatched.
-    # * commit - The commit to be marked as dispatched.
-    def mark_commit_as_dispatched(commit)
-      raise "Not implemented"
-    end
-
     #Writes the to-be-commited events provided to the underlying persistence mechanism.
     # * attempt - the series of events and associated metadata to be commited.
     def commit(attempt)

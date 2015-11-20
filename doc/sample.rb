@@ -34,11 +34,6 @@ end
 store = EventStore.bootstrap do |with|
   with.console_logging
   with.in_memory_persistence
-  with.synchronous_dispatcher do |commit|
-    commit.events.each { |event| 
-      EventStore::Base::Log.info "Dispatching event: #{event.body}" 
-    }
-  end
 end
 
 employees_service = EmployeesService.new store

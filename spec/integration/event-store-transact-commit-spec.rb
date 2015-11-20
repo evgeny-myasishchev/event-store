@@ -8,7 +8,6 @@ describe 'EventStore::Base integration' do
     
     EventStore::Bootstrap.bootstrap do |with|
       with.persistence engine
-      with.synchronous_dispatcher { |commit|  }
     end
   }
   

@@ -4,7 +4,6 @@ describe 'EventStore::Base integration' do
   subject {
     store = EventStore::Bootstrap.bootstrap do |with|
       with.sql_persistence(RSpec.configuration.database_config, {:orm_log_level => :debug}).compress
-      with.synchronous_dispatcher { |commit|  }
     end
     store.purge
     store

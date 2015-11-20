@@ -6,14 +6,12 @@ module EventStore
     def self.bootstrap(&block)
       with = With.new &block
       raise BootstrapError.new "Persistence has not been initialized" if with.persistence_engine.nil?
-      raise BootstrapError.new "Dispatcher has not been initialized" if with.dispatcher.nil?
-      store = EventStore::Base.new with.persistence_engine, with.dispatcher
+      store = EventStore::Base.new with.persistence_engine
       store
     end
 
     class With
       attr_reader :persistence_engine
-      attr_reader :dispatcher
 
       def initialize(&block)
         yield(self)
@@ -34,10 +32,6 @@ module EventStore
       def has_persistence_engine?
         !@persistence_engine.nil?
       end
-      
-      def has_dispatcher?
-        !@dispatcher.nil?
-      end
 
       def in_memory_persistence
         @persistence_engine = Persistence::Engines::InMemoryEngine.new
@@ -51,16 +45,6 @@ module EventStore
       
       def persistence persistence_engine
         @persistence_engine = persistence_engine
-      end
-
-      # &receiver should accept single argument the commit to dispatch.
-      def synchronous_dispatcher(&receiver)
-        @dispatcher = Dispatcher::SynchronousDispatcher.new(&receiver)
-      end
-      
-      # &receiver should accept single argument the commit to dispatch.
-      def asynchronous_dispatcher(&receiver)
-        @dispatcher = Dispatcher::AsynchronousDispatcher.new(&receiver)
       end
     end
     

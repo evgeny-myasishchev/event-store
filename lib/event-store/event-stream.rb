@@ -32,12 +32,11 @@ class EventStore::EventStream
     @uncommitted_events_ro ||= EventStore::Infrastructure::ReadOnlyArray.new(@uncommitted_events) 
   end
 
-  def initialize(stream_id, persistence_engine, hooks: [], min_revision: nil, load: false)
+  def initialize(stream_id, persistence_engine, min_revision: nil, load: false)
     raise InvalidStreamIdError.new "stream_id can not be null or empty" if stream_id == nil || stream_id == ""
     @stream_id = stream_id
     @persistence_engine = persistence_engine
     @uncommitted_events = []
-    @pipeline_hooks = hooks
     
     @stream_revision = 0
     @commit_sequence = 0
@@ -77,13 +76,9 @@ class EventStore::EventStream
     # Args:
     # * stream_id - stream identifier. Can be generated with Identity::generate
     # * persistence_engine - the engine to access commits	
-    #
-    # options:
-    # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
-    # *
-    def create_stream(stream_id, persistence_engine, hooks: [])
+    def create_stream(stream_id, persistence_engine)
       Log.debug "Creating new stream: #{stream_id}"
-      new(stream_id, persistence_engine, hooks: hooks)
+      new(stream_id, persistence_engine)
     end
     
     #
@@ -91,13 +86,9 @@ class EventStore::EventStream
     # * stream_id - stream identifier. Can be generated with Identity::generate
     # * persistence_engine - the engine to access commits	
     # * min_revision - min_revision to load the stream from. nil is the default and means that loading from initial revision.
-    #
-    # options:
-    # * hooks - pipeline hooks that are invoked at different stages. See PipelineHook.
-    # *
-    def open_stream(stream_id, persistence_engine, min_revision: nil, hooks: [])
+    def open_stream(stream_id, persistence_engine, min_revision: nil)
       Log.debug "Opening stream: #{stream_id}"
-      new(stream_id, persistence_engine, hooks: hooks, min_revision: min_revision, load: true)
+      new(stream_id, persistence_engine, min_revision: min_revision, load: true)
     end
   end
   

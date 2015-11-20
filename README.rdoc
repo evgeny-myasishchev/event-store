@@ -11,11 +11,6 @@ Ruby implementation of the event store. Inspired by NEventStore.
   store = EventStore.bootstrap do |with|
     with.console_logging
     with.in_memory_persistence
-    with.synchronous_dispatcher do |commit|
-      commit.events.each { |event| 
-        # TODO: Dispatch
-      }
-    end
   end
   
   # Create new stream
@@ -38,8 +33,6 @@ A complete sample is here: link:doc/sample.rb
 
 * SQL persistence 
 * Atomic multistream commits (if supported by underlying persistance engine)
-* Synchronous events dispatching
-* Asynchronous events dispatching
 * JSON, YAML and Marshal serialization
 * Compression
 

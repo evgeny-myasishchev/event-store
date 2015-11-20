@@ -3,18 +3,25 @@ module EventStore
   class Commit
     def initialize(hash)
       attributes = {
-        :stream_id        => nil,
-        :commit_id        => nil,
-        :commit_sequence  => 1,
-        :stream_revision  => 1,
+        :checkpoint_number => nil,
+        :stream_id => nil,
+        :commit_id => nil,
+        :commit_sequence => 1,
+        :stream_revision => 1,
         :commit_timestamp => Time.now.utc,
-        :events           => [],
-        :headers          => {}
+        :events => [],
+        :headers => {}
       }
       # Assigning only declared attributes
-      values = attributes.merge hash
-      attributes.keys.each { |key| instance_variable_set "@#{key}", values[key] }
+      @hash = attributes.merge(hash).freeze
+      attributes.keys.each { |key| instance_variable_set "@#{key}", @hash[key] }
     end
+
+    # Commit values as a raw hash
+    attr_reader :hash
+
+    # Checkpoint that represents an order of the commit
+    attr_reader :checkpoint_number
     
     # Gets the value which uniquely identifies the stream to which the commit belongs.
     attr_reader :stream_id

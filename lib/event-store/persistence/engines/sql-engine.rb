@@ -80,7 +80,7 @@ module EventStore::Persistence::Engines
       ensure_initialized!
       Log.debug("Committing attempt #{attempt}")
       begin
-        @storage.insert({
+        checkpoint_number = @storage.insert({
           stream_id: attempt.stream_id,
           commit_id: attempt.commit_id,
           commit_sequence: attempt.commit_sequence,
@@ -93,7 +93,7 @@ module EventStore::Persistence::Engines
         Log.error "Constraint violation error occured: #{e}."
         raise EventStore::ConcurrencyError.new e
       end
-      nil
+      EventStore::Commit.new attempt.hash.merge checkpoint_number: checkpoint_number
     end
     
     def init_engine
@@ -147,7 +147,8 @@ module EventStore::Persistence::Engines
       end
       
       def map_commit(commit_hash)
-        EventStore::Commit.new stream_id: commit_hash[:stream_id],
+        EventStore::Commit.new checkpoint_number: commit_hash[:checkpoint_number],
+          stream_id: commit_hash[:stream_id],
           commit_id: commit_hash[:commit_id],
           commit_sequence: commit_hash[:commit_sequence],
           stream_revision: commit_hash[:stream_revision],
@@ -160,7 +161,7 @@ module EventStore::Persistence::Engines
         storage.
           where('stream_id = :stream_id and (stream_revision >= :min_revision or :min_revision is NULL)', stream_id: :$stream_id, min_revision: :$min_revision).
           order(:commit_sequence).
-          prepare(:select, :select_from_stream)
+          prepare(:select, :checkpoint_number)
       end
   end
 end

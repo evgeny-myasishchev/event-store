@@ -26,6 +26,6 @@ module Support::CommitsHelper
   end
   
   def commit_all(persistence, *args)
-    args.each { |commit| persistence.commit(commit) }
+    args.map { |commit| persistence.commit(commit) }
   end
 end

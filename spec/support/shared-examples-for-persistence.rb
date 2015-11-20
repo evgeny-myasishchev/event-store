@@ -21,6 +21,19 @@ shared_examples "generic-persistence-engine" do
     expect(stream2_commits[0]).to eql commit21
     expect(stream2_commits[1]).to eql commit22
   end
+
+  it "should maintain sequental checkpoint_number for each commit" do
+    100.times do |i|
+      commit_all(subject, 
+        build_commit("stream-1", "commit-#{i}"),
+        build_commit("stream-2", "commit-#{i}"))
+    end
+
+    commits = subject.get_from("stream-1").concat(subject.get_from("stream-2")).sort_by { |c| [c.stream_id, c.commit_id] }
+    commits.inject { |prev, current|
+      expect(current.checkpoint_number).to eql prev.checkpoint_number -= 1
+    }
+  end
   
   describe "get_from" do
     it "should return commits ordered by commit_sequence" do
@@ -98,6 +111,14 @@ shared_examples "generic-persistence-engine" do
   end
   
   describe "commit" do
+    it "should assign checkpoint_number" do
+      commit1 = subject.commit build_commit("stream-1", "commit-1")
+      commit2 = subject.commit build_commit("stream-2", "commit-2")
+      
+      expect(commit1.checkpoint_number).not_to be_nil
+      expect(commit2).to satisfy {|c| c.checkpoint_number == commit1.checkpoint_number + 1 }
+    end
+
     it "should persist events" do
       commit1 = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
       commit2 = build_commit("stream-2", "commit-2", new_event("event-1"), new_event("event-2"), new_event("event-3"))

@@ -24,16 +24,12 @@ module EventStore::Persistence::Engines
         ({commit_sequence: 0, stream_revision: 0})
     end
     
-    def for_each_commit(&block)
-      all_commits = []
-      @streams_store.each_value do |value|
-        all_commits.concat value
-      end
-      all_commits.sort! do |left, right|
-        left.commit_timestamp <=> right.commit_timestamp
-      end
-      all_commits.each(&block)
-      nil
+    def for_each_commit(checkpoint: nil, &block)
+      @streams_store.lazy
+        .flat_map {|k, v| v }
+        .select {|c| checkpoint.nil? || c.checkpoint_number > checkpoint }
+        .to_a.sort_by! { |c| c.checkpoint_number }
+        .each(&block)
     end
 
     def commit(attempt)

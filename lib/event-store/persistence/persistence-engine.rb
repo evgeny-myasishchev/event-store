@@ -38,7 +38,8 @@ module EventStore::Persistence
     
     #Iterates through all commits from all streams
     #Retrieved commits are sorted in ascending order from older to newer.
-    def for_each_commit(&block)
+    #If checkpoint provided then commits will be fetched after the specified checkpoint
+    def for_each_commit(checkpoint: nil, &block)
       raise "Not implemented"
     end
 

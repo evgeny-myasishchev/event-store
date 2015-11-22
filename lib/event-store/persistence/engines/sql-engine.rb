@@ -27,6 +27,7 @@ module EventStore::Persistence::Engines
       }.merge! options
       
       @connection = Sequel.connect connection_specification
+      @connection.extension(:pagination)
       @connection.loggers << EventStore::Logging::Logger.get("event-store::persistence::orm")
       @connection.sql_log_level = @options[:orm_log_level]
       
@@ -62,15 +63,17 @@ module EventStore::Persistence::Engines
       head
     end
     
-    def for_each_commit(&block)
+    def for_each_commit(checkpoint: nil, &block)
       ensure_initialized!
       
-      #to_a evaluates the query immediatelly. In other case it will do a select for each commit.
-      #Also when using SQLite fetch for each commit may cause locking errors if event store and read store are the same database.
-      #TODO: Butch fetch should be considered.
-      @storage.order(:commit_timestamp).to_a.each do |c|
-        yield map_commit(c)
-      end
+      #Fetching in pages to prevent entire dataset from being loaded into memory
+      query = @storage
+      query = query.where('checkpoint_number > :checkpoint', checkpoint: checkpoint) unless checkpoint.nil?
+      query
+        .order(:checkpoint_number)
+        .each_page(1000) { |page| 
+          page.to_a.each { |c| yield map_commit(c) }
+        }
       nil
     end
 

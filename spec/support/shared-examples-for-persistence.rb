@@ -83,15 +83,16 @@ shared_examples "generic-persistence-engine" do
   end
   
   describe "for_each_commit" do
-    it "should iterate through all commits ordered by commit_timestamp" do
-      now      = Time.now.utc
-      commit11 = build_commit("stream-1", "commit-11") { |c| c[:commit_timestamp] = now - 100 }
-      commit12 = build_commit("stream-1", "commit-12") { |c| c[:commit_timestamp] = now - 90 }
-      commit13 = build_commit("stream-1", "commit-13") { |c| c[:commit_timestamp] = now - 80 }
-      commit21 = build_commit("stream-2", "commit-21") { |c| c[:commit_timestamp] = now - 70 }
-      commit22 = build_commit("stream-2", "commit-22") { |c| c[:commit_timestamp] = now - 60 }
-      commit31 = build_commit("stream-3", "commit-31") { |c| c[:commit_timestamp] = now - 50 }
-      commit32 = build_commit("stream-3", "commit-32") { |c| c[:commit_timestamp] = now - 40 }
+    it 'should iterate through all commits ordered by checkpoint_number' do
+      # Basically in a order of commit itself
+      
+      commit11 = build_commit('stream-1', 'commit-11')
+      commit12 = build_commit('stream-1', 'commit-12')
+      commit13 = build_commit('stream-1', 'commit-13')
+      commit21 = build_commit('stream-2', 'commit-21')
+      commit22 = build_commit('stream-2', 'commit-22')
+      commit31 = build_commit('stream-3', 'commit-31')
+      commit32 = build_commit('stream-3', 'commit-32')
       
       commit_all(subject, commit11, commit12, commit13, commit21, commit22, commit31, commit32)
       
@@ -108,6 +109,18 @@ shared_examples "generic-persistence-engine" do
       expect(all_commits[4]).to eql commit22
       expect(all_commits[5]).to eql commit31
       expect(all_commits[6]).to eql commit32
+    end
+      
+    it 'should iterate through all commits after specified checkpoint' do
+      to_be_skipped = commit_all subject, *3.times.map { |i| build_commit('stream-1', "commit-1#{i}") }
+      commits = [
+        commit_all(subject, *3.times.map { |i| build_commit('stream-2', "commit-1#{i}") }),
+        commit_all(subject, *3.times.map { |i| build_commit('stream-3', "commit-1#{i}") })
+      ].flatten!
+      
+      fetched_commits = []
+      subject.for_each_commit(checkpoint: to_be_skipped.last.checkpoint_number) { |c| fetched_commits << c }
+      expect(fetched_commits).to eql commits
     end
   end
   

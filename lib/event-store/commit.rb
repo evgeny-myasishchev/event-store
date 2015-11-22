@@ -3,7 +3,7 @@ module EventStore
   class Commit
     def initialize(hash)
       attributes = {
-        :checkpoint_number => nil,
+        :checkpoint => nil,
         :stream_id => nil,
         :commit_id => nil,
         :commit_sequence => 1,
@@ -21,7 +21,7 @@ module EventStore
     attr_reader :hash
 
     # Checkpoint that represents an order of the commit
-    attr_reader :checkpoint_number
+    attr_reader :checkpoint
     
     # Gets the value which uniquely identifies the stream to which the commit belongs.
     attr_reader :stream_id
@@ -56,7 +56,7 @@ module EventStore
     end
     
     def to_s
-      %(Commit { checkpoint_number: #{checkpoint_number}, stream_id: #{stream_id}, commit_id: #{commit_id}, commit_sequence: #{commit_sequence}, stream_revision: #{stream_revision}, events.length: #{events.length} })
+      %(Commit { checkpoint: #{checkpoint}, stream_id: #{stream_id}, commit_id: #{commit_id}, commit_sequence: #{commit_sequence}, stream_revision: #{stream_revision}, events.length: #{events.length} })
     end
     
     class << self

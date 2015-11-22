@@ -22,22 +22,22 @@ shared_examples "generic-persistence-engine" do
     expect(stream2_commits[1]).to eql commit22
   end
 
-  it "should maintain sequental checkpoint_number for each commit" do
+  it 'should maintain sequential checkpoint for each commit' do
     30.times do |i|
       commit_all(subject,
-        build_commit("stream-1", "commit-#{i.to_s.rjust(3, '0')}"),
-        build_commit("stream-2", "commit-#{i.to_s.rjust(3, '0')}"))
+        build_commit('stream-1', "commit-#{i.to_s.rjust(3, '0')}"),
+        build_commit('stream-2', "commit-#{i.to_s.rjust(3, '0')}"))
     end
 
-    commits = subject.get_from("stream-1").concat(subject.get_from("stream-2")).sort_by { |c| [c.commit_id, c.stream_id] }
+    commits = subject.get_from('stream-1').concat(subject.get_from('stream-2')).sort_by { |c| [c.commit_id, c.stream_id] }
     commits.inject { |prev, current|
-      expect(current.checkpoint_number).to eql prev.checkpoint_number + 1
+      expect(current.checkpoint).to eql prev.checkpoint.next
       current
     }
   end
   
   describe "get_from" do
-    it 'should return commits ordered by checkpoint_number' do
+    it 'should return commits ordered by checkpoint' do
       commit1 = build_commit('stream-1', 'commit-1')
       commit2 = build_commit('stream-1', 'commit-2')
       commit3 = build_commit('stream-1', 'commit-3')
@@ -83,7 +83,7 @@ shared_examples "generic-persistence-engine" do
   end
   
   describe "for_each_commit" do
-    it 'should iterate through all commits ordered by checkpoint_number' do
+    it 'should iterate through all commits ordered by checkpoint' do
       # Basically in a order of commit itself
       
       commit11 = build_commit('stream-1', 'commit-11')
@@ -119,18 +119,18 @@ shared_examples "generic-persistence-engine" do
       ].flatten!
       
       fetched_commits = []
-      subject.for_each_commit(checkpoint: to_be_skipped.last.checkpoint_number) { |c| fetched_commits << c }
+      subject.for_each_commit(checkpoint: to_be_skipped.last.checkpoint) { |c| fetched_commits << c }
       expect(fetched_commits).to eql commits
     end
   end
   
   describe "commit" do
-    it "should assign checkpoint_number" do
+    it "should assign checkpoint" do
       commit1 = subject.commit build_commit("stream-1", "commit-1")
       commit2 = subject.commit build_commit("stream-2", "commit-2")
       
-      expect(commit1.checkpoint_number).not_to be_nil
-      expect(commit2.checkpoint_number).to eql commit1.checkpoint_number + 1
+      expect(commit1.checkpoint).not_to be_nil
+      expect(commit2.checkpoint).to eql commit1.checkpoint + 1
     end
 
     it "should persist events" do

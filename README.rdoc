@@ -15,17 +15,13 @@ Ruby implementation of the event store. Inspired by NEventStore.
   
   # Create new stream
   stream = store.create_stream(employee_id)
-  stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)
-  store.transaction do |t|
-    stream.commit_changes t
-  end
+  stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)  
+  stream.commit_changes t
   
   # Add new events to existing stream
   stream = store.open_stream(employee_id)
-  stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)
-  @store.transaction do |t|
-    stream.commit_changes t
-  end
+  stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)  
+  stream.commit_changes t  
 
 A complete sample is here: link:doc/sample.rb
 
@@ -39,5 +35,4 @@ A complete sample is here: link:doc/sample.rb
 === Planned
 
 * NOSQL persistence
-* Events polling
 * Documentation

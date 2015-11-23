@@ -29,8 +29,8 @@ describe EventStore::Commit do
   describe "build" do
     it "should create a new commit from provided stream events and headers" do
       stream = double(:stream, :stream_id => "some-stream-id", :commit_sequence => 102, :stream_revision => 23)
-      evt1 = new_event("evt1")
-      evt2 = new_event("evt2")
+      evt1 = "evt1"
+      evt2 = "evt2"
       
       expect(EventStore::Identity).to receive(:generate).once.and_return("new-commit-id")
       

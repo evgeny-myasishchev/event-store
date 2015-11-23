@@ -107,7 +107,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
   
   describe "commit" do
     let(:attempt) { 
-      build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2")) do |a|
+      build_commit("stream-1", "commit-1", "event-1", "event-2") do |a|
         a[:headers] = {header1: 'value-1', header2: 'value-2'}
       end
     }
@@ -176,8 +176,8 @@ describe EventStore::Persistence::Engines::SqlEngine do
   
   describe "purge" do
     it "should delete all items from the commits table" do
-      commit1 = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
-      commit2 = build_commit("stream-2", "commit-2", new_event("event-1"), new_event("event-2"), new_event("event-3"))
+      commit1 = build_commit("stream-1", "commit-1", "event-1", "event-2")
+      commit2 = build_commit("stream-2", "commit-2", "event-1", "event-2", "event-3")
       commit_all(subject, commit1, commit2)
       subject.purge
       table = subject.connection[:'event-store-commits']

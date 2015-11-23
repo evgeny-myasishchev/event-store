@@ -13,7 +13,7 @@ describe 'EventStore::Base integration' do
   
   describe 'transact commit' do
     it 'should rollback if any commit fails' do
-      evt1 = EventStore::EventMessage.new :evt1 => true
+      evt1 = {:evt1 => true}
       
       stream1 = subject.create_stream 'stream-221'
       stream1.add evt1

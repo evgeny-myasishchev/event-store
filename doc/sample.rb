@@ -19,14 +19,14 @@ class EmployeesService
   def hire_employee full_name
     employee_id = Identity.generate
     stream = @store.create_stream(employee_id)
-    stream.add EventMessage.new EmployeeHired.new(employee_id, full_name)
+    stream.add EmployeeHired.new(employee_id, full_name)
     stream.commit_changes
     employee_id
   end
     
   def resign_employee employee_id, reason
     stream = @store.open_stream(employee_id)
-    stream.add EventMessage.new EmployeeResigned.new(employee_id, reason)
+    stream.add EmployeeResigned.new(employee_id, reason)
     stream.commit_changes
   end
 end
@@ -43,6 +43,6 @@ employees_service.resign_employee employee_id, 'Found another job'
 puts 'Committed events'
 store.for_each_commit do |commit|
   commit.events.each do |evt|
-    puts evt.body
+    puts evt
   end
 end

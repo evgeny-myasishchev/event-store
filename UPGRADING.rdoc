@@ -1,7 +1,8 @@
 == Upgrading to 3.0.1.b3
 
 1) Dispatching concept removed. Update code accordingly.
-2) SQL persistence schema changes. To migrate:
+2) Events are no longer wrapped with EventMessage class. This must be handled somehow. TODO: Investigate the solution.
+3) SQL persistence schema changes. To migrate:
   * Rename initial events table event-store-commits to event-store-commits-old
   * Initialize new schema  Persistence::Engines::SqlEngine.new(connection_specification, options).init_engine
     Make sure connection specification and options correspond to original values

@@ -15,7 +15,6 @@ module EventStore
   autoload :Base, 'event-store/base'
   autoload :Bootstrap, 'event-store/bootstrap'
   autoload :Commit, 'event-store/commit'
-  autoload :EventMessage, 'event-store/event-message'
   autoload :EventStream, 'event-store/event-stream'
   autoload :Identity, 'event-store/identity'
   autoload :Persistence, 'event-store/persistence'

@@ -1,9 +1,4 @@
 module Support::CommitsHelper
-  
-  def new_event(body)
-    EventStore::EventMessage.new body
-  end
-  
   #*args are possible events
   def build_commit(stream_id, commit_id, *args, &block)
     @stream_revision ||= Hash.new(0)

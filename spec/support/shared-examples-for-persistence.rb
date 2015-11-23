@@ -68,9 +68,9 @@ shared_examples "generic-persistence-engine" do
   describe 'get_head' do
     it 'should return head related attributes' do
       commit_all(subject, 
-        build_commit("stream-1", "commit-11", new_event("event-1"), new_event("event-2")),
-        build_commit("stream-1", "commit-12", new_event("event-3")),
-        build_commit("stream-2", "commit-21", new_event("event-1"))
+        build_commit("stream-1", "commit-11", "event-1", "event-2"),
+        build_commit("stream-1", "commit-12", "event-3"),
+        build_commit("stream-2", "commit-21", "event-1")
       )
       
       expect(subject.get_head('stream-1')).to eql(commit_sequence: 2, stream_revision: 3)
@@ -134,21 +134,21 @@ shared_examples "generic-persistence-engine" do
     end
 
     it "should persist events" do
-      commit1 = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
-      commit2 = build_commit("stream-2", "commit-2", new_event("event-1"), new_event("event-2"), new_event("event-3"))
+      commit1 = build_commit("stream-1", "commit-1", "event-1", "event-2")
+      commit2 = build_commit("stream-2", "commit-2", "event-1", "event-2", "event-3")
       
       commit_all(subject, commit1, commit2)
       
       actual1 = subject.get_from("stream-1")[0]
       expect(actual1.events.length).to eql(2)
-      expect(actual1.events[0]).to eql new_event("event-1")
-      expect(actual1.events[1]).to eql new_event("event-2")
+      expect(actual1.events[0]).to eql "event-1"
+      expect(actual1.events[1]).to eql "event-2"
       
       actual2 = subject.get_from("stream-2")[0]
       expect(actual2.events.length).to eql(3)
-      expect(actual2.events[0]).to eql new_event("event-1")
-      expect(actual2.events[1]).to eql new_event("event-2")
-      expect(actual2.events[2]).to eql new_event("event-3")
+      expect(actual2.events[0]).to eql "event-1"
+      expect(actual2.events[1]).to eql "event-2"
+      expect(actual2.events[2]).to eql "event-3"
     end
       
     it "should persist headers" do
@@ -158,7 +158,7 @@ shared_examples "generic-persistence-engine" do
           "header2" => "value-2",
         }
       end
-      commit2 = build_commit("stream-2", "commit-2", new_event("event-1")) do |c|
+      commit2 = build_commit("stream-2", "commit-2", "event-1") do |c|
         c[:headers] = {
           "header3" => "value-3",
           "header4" => "value-4",
@@ -177,8 +177,8 @@ shared_examples "generic-persistence-engine" do
   
   describe "purge" do
     before(:each) do
-      commit1 = build_commit("stream-1", "commit-1", new_event("event-1"), new_event("event-2"))
-      commit2 = build_commit("stream-2", "commit-2", new_event("event-1"), new_event("event-2"), new_event("event-3"))
+      commit1 = build_commit("stream-1", "commit-1", "event-1", "event-2")
+      commit2 = build_commit("stream-2", "commit-2", "event-1", "event-2", "event-3")
       
       commit_all(subject, commit1, commit2)
       subject.purge

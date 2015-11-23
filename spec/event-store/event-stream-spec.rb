@@ -7,8 +7,8 @@ describe EventStore::EventStream do
     let(:stream) { described_class.create_stream("fake-stream-id", persistence_engine) }
     
     it "should add an event to an uncommitted_events list" do
-      evt1 = EventStore::EventMessage.new :some_body => 1
-      evt2 = EventStore::EventMessage.new :another_body => 2
+      evt1 = {:some_body => 1}
+      evt2 = {:another_body => 2}
       
       expect(stream.uncommitted_events).to be_empty
       

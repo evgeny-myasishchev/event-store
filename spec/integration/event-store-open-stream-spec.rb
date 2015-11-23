@@ -19,9 +19,9 @@ describe 'EventStore::Base integration' do
     
     it 'should return the stream populated with all events' do
       original_stream = subject.create_stream 'stream-221'
-      evt1 = EventStore::EventMessage.new :evt1 => true
-      evt2 = EventStore::EventMessage.new :evt2 => true
-      evt3 = EventStore::EventMessage.new :evt2 => true
+      evt1 = {:evt1 => true}
+      evt2 = {:evt2 => true}
+      evt3 = {:evt2 => true}
       original_stream.add evt1
       original_stream.add evt2
       subject.transaction { |t| original_stream.commit_changes t }
@@ -38,12 +38,12 @@ describe 'EventStore::Base integration' do
     end
     
     describe 'with min_revision' do
-      let(:evt1) { EventStore::EventMessage.new :evt1 => true }
-      let(:evt2) { EventStore::EventMessage.new :evt2 => true }
-      let(:evt3) { EventStore::EventMessage.new :evt2 => true }
-      let(:evt4) { EventStore::EventMessage.new :evt2 => true }
-      let(:evt5) { EventStore::EventMessage.new :evt2 => true }
-      let(:evt6) { EventStore::EventMessage.new :evt2 => true }
+      let(:evt1) { {:evt1 => true} }
+      let(:evt2) { {:evt2 => true} }
+      let(:evt3) { {:evt2 => true} }
+      let(:evt4) { {:evt2 => true} }
+      let(:evt5) { {:evt2 => true} }
+      let(:evt6) { {:evt2 => true} }
       
       before(:each) do
         original_stream = subject.create_stream 'stream-221'

@@ -1,18 +1,28 @@
 module EventStore::Logging
   class Logger
-    def debug(*args) end
-    def info(*args) end
-    def warn(*args) end
-    def error(*args) end
-    def fatal(*args) end
-      
+    Levels = [:debug, :info, :warn, :error, :fatal]
+    
+    def initialize(name)
+      @name = name
+    end
+    
+    Levels.each { |level|
+      eval <<-EOF
+      def #{level}(*args)
+        self.class.factory.get(@name).#{level}(*args)
+      end
+      EOF
+    }
+     
     class << self
-      def factory=(value)
-        @factory = value
+      attr_writer :factory
+      
+      def factory
+        @factory || Factory
       end
       
       def get(name)
-        (@factory || Factory).get(name)
+        new(name)
       end
     end
   end

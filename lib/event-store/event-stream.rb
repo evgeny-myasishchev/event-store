@@ -2,7 +2,7 @@
 class EventStore::EventStream
   class InvalidStreamIdError < ::StandardError; end
   
-  Log = EventStore::Logging::Logger.get 'event-store::event-stream'
+  include EventStore::Loggable
   
   # Gets the value that indicates if the stream is new (no commits for the stream has been persisted yet).
   def new_stream?

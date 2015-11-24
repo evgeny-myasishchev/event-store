@@ -1,5 +1,5 @@
 class EventStore::Base
-  Log = EventStore::Logging::Logger.get 'event-store'
+  include EventStore::Loggable
 
   extend Forwardable
   

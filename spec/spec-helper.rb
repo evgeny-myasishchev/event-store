@@ -15,7 +15,7 @@ require 'event-store'
 require 'json'
 
 module Support
-  autoload :CommitsHelper, 'support/commits-helper'
+  require_relative 'support/commits-helper'
 end
 
 #Shared examples

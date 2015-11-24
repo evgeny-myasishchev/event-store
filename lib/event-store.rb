@@ -3,21 +3,21 @@ module EventStore
   end
   
   module Infrastructure
-    autoload :ReadOnlyArray, 'event-store/infrastructure/read-only-array'
+    require_relative 'event-store/infrastructure/read-only-array'
   end
   
   module Logging
-    autoload :Logger, 'event-store/logging/logger'
-    autoload :Factory, 'event-store/logging/factory'
-    autoload :Log4rFactory, 'event-store/logging/log4r-factory'
+    require_relative 'event-store/logging/logger'
+    require_relative 'event-store/logging/factory'
+    require_relative 'event-store/logging/log4r-factory'
   end
   
-  autoload :Base, 'event-store/base'
-  autoload :Bootstrap, 'event-store/bootstrap'
-  autoload :Commit, 'event-store/commit'
-  autoload :EventStream, 'event-store/event-stream'
-  autoload :Identity, 'event-store/identity'
-  autoload :Persistence, 'event-store/persistence'
+  require_relative 'event-store/base'
+  require_relative 'event-store/bootstrap'
+  require_relative 'event-store/commit'
+  require_relative 'event-store/event-stream'
+  require_relative 'event-store/identity'
+  require_relative 'event-store/persistence'
   
   class << self
     def bootstrap(&block)

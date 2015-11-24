@@ -5,11 +5,9 @@ log4r_config:
     
     # define all outputters (incl. formatters)
     outputters:
-    - type: RollingFileOutputter
+    - type: FileOutputter
       name: log_file
-      filename: "log/event-store-.log"
-      maxsize: "5242880" #5MB
-      max_backups: "5"
+      filename: "log/event-store.log"
       formatter:
           date_pattern: '%Y-%m-%d %H:%M:%S'
           pattern     : '[%d %C %l]: %m'

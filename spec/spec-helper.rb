@@ -26,10 +26,10 @@ require 'support/serializers-shared-examples'
 #Configure logging
 require 'log4r'
 require 'log4r/yamlconfigurator'
-require 'log4r/outputter/rollingfileoutputter'
+require 'log4r/outputter/fileoutputter'
 log4r_config = YAML.load_file(File.expand_path('../support/log4r.yml', __FILE__))
-file_outputter = log4r_config['log4r_config']["outputters"].detect { |outputter| outputter["type"] == "RollingFileOutputter" }
-file_outputter["filename"] = File.join(File.dirname(__FILE__), file_outputter["filename"])
+file_outputter = log4r_config['log4r_config']['outputters'].detect { |outputter| outputter['type'] == 'FileOutputter' }
+file_outputter['filename'] = File.join(File.dirname(__FILE__), file_outputter['filename'])
 Log4r::YamlConfigurator.decode_yaml(log4r_config['log4r_config'])
 EventStore::Logging::Logger.factory = EventStore::Logging::Log4rFactory
 

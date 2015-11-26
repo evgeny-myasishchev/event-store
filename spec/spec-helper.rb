@@ -52,4 +52,8 @@ RSpec.configure do |config|
   db_config_file = ENV.key?('DB_CONFIG') ? ENV['DB_CONFIG'] : 'spec/support/database_sqlite.yml'
   config.add_setting :database_config
   config.database_config = db_config = YAML.load_file File.expand_path(db_config_file, File.join(__dir__, '..'))
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
 end

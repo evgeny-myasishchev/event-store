@@ -1,7 +1,7 @@
 require 'spec-helper'
 
 describe EventStore::Base do
-  let(:persistence_engine) { EventStore::Persistence::Engines::InMemoryEngine }
+  let(:persistence_engine) { EventStore::Persistence::Engines::InMemoryEngine.new }
   let(:store) { described_class.new(persistence_engine) }
 
   describe 'for_each_commit' do

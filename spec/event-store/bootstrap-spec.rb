@@ -32,7 +32,7 @@ describe EventStore::Bootstrap do
       let(:options) { {opt1: 'value1'} }
       
       it "should create and init sql engine" do
-        sql_engine = double(:sql_engine)
+        sql_engine = instance_double(engine_class)
         expect(engine_class).to receive(:new).with(connection_spec, options).and_return(sql_engine)
         expect(sql_engine).to receive(:init_engine)
         described_class.bootstrap do |with|

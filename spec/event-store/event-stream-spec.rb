@@ -1,7 +1,7 @@
 require 'spec-helper'
 
 describe EventStore::EventStream do
-  let(:persistence_engine) { double("persistence-engine", :commit => nil, :get_from => []) }
+  let(:persistence_engine) { instance_double(EventStore::Persistence::PersistenceEngine, :commit => nil, :get_from => []) }
   
   describe "add" do
     let(:stream) { described_class.create_stream("fake-stream-id", persistence_engine) }
@@ -50,7 +50,7 @@ describe EventStore::EventStream do
   describe 'open_stream' do
     it "should use persistence_engine to get all commits" do
       expect(persistence_engine).to receive(:get_from).with("fake-stream-id").and_return([
-        double(:commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)])
+        instance_double(EventStore::Commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)])
       ])
       described_class.open_stream("fake-stream-id", persistence_engine)
     end
@@ -86,9 +86,9 @@ describe EventStore::EventStream do
     end
     
     context "with commits" do
-      let(:commit1) { double(:commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)]) }
-      let(:commit2) { double(:commit, :commit_sequence => 2, stream_revision: 3, :events => [double(:evt1)]) }
-      let(:commit3) { double(:commit, :commit_sequence => 3, stream_revision: 6, :events => [double(:evt1), double(:evt2), double(:evt3)]) }
+      let(:commit1) { instance_double(EventStore::Commit, :commit_sequence => 1, stream_revision: 2, :events => [double(:evt1), double(:evt2)]) }
+      let(:commit2) { instance_double(EventStore::Commit, :commit_sequence => 2, stream_revision: 3, :events => [double(:evt1)]) }
+      let(:commit3) { instance_double(EventStore::Commit, :commit_sequence => 3, stream_revision: 6, :events => [double(:evt1), double(:evt2), double(:evt3)]) }
       let(:stream) { described_class.open_stream("fake-stream-id", persistence_engine) }
       
       before(:each) do
@@ -113,9 +113,9 @@ describe EventStore::EventStream do
       end
       
       it 'should handle min_revision option' do
-        commit1 = double(:commit, commit_id: 1, :commit_sequence => 10, stream_revision: 14, :events => [double(:evt1), double(:evt2), double(:evt2)])
-        commit2 = double(:commit, commit_id: 2, :commit_sequence => 11, stream_revision: 15, :events => [double(:evt1)])
-        commit3 = double(:commit, commit_id: 3, :commit_sequence => 12, stream_revision: 18, :events => [double(:evt1), double(:evt2), double(:evt3)])
+        commit1 = instance_double(EventStore::Commit, commit_id: 1, :commit_sequence => 10, stream_revision: 14, :events => [double(:evt1), double(:evt2), double(:evt2)])
+        commit2 = instance_double(EventStore::Commit, commit_id: 2, :commit_sequence => 11, stream_revision: 15, :events => [double(:evt1)])
+        commit3 = instance_double(EventStore::Commit, commit_id: 3, :commit_sequence => 12, stream_revision: 18, :events => [double(:evt1), double(:evt2), double(:evt3)])
 
         expect(persistence_engine).to receive(:get_from).with('stream-100', min_revision: 13) { [commit1, commit2, commit3] }
         stream = described_class.open_stream('stream-100', persistence_engine, min_revision: 13)
@@ -139,7 +139,7 @@ describe EventStore::EventStream do
       evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
       
-      attempt = double(:attempt, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
+      attempt = instance_double(EventStore::Commit, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
       expect(EventStore::Commit).to receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
       expect(persistence_engine).to receive(:commit).with(attempt)
@@ -154,8 +154,8 @@ describe EventStore::EventStream do
     end
     
     it "should populate stream with new events and remove them from uncommited" do
-      commit1 = double(:commit, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [double(:evt1), double(:evt2)])
-      commit2 = double(:commit, stream_revision: 3, :commit_id => "commit-2", :commit_sequence => 2, :events => [double(:evt1)])
+      commit1 = instance_double(EventStore::Commit, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [double(:evt1), double(:evt2)])
+      commit2 = instance_double(EventStore::Commit, stream_revision: 3, :commit_id => "commit-2", :commit_sequence => 2, :events => [double(:evt1)])
       
       allow(persistence_engine).to receive(:get_from) { [commit1, commit2] }
       stream = described_class.open_stream("fake-stream-id", persistence_engine)
@@ -171,7 +171,7 @@ describe EventStore::EventStream do
       
       expect(stream.uncommitted_events.length).to eql 2
       
-      attempt = double(:attempt, stream_revision: 5, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
+      attempt = instance_double(EventStore::Commit, stream_revision: 5, :commit_id => "commit-2", :commit_sequence => 3, :events => [evt1, evt2])
       allow(EventStore::Commit).to receive(:build) { attempt }
       
       stream.commit_changes

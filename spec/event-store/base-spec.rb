@@ -6,7 +6,7 @@ describe EventStore::Base do
 
   describe 'for_each_commit' do
     it 'should be delegated to persistence_engine' do
-      commit = double(:commit)
+      commit = instance_double(EventStore::Commit)
       expect(persistence_engine).to receive(:for_each_commit) do |&block|
         block.call commit
       end
@@ -25,7 +25,7 @@ describe EventStore::Base do
   
   describe "create_stream" do
     it "should create stream with persistence engine" do
-      mock_stream = double(:stream)
+      mock_stream = instance_double(EventStore::EventStream)
       expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
         expect(stream_id).to eql "some-stream-id"
         expect(pe).to be persistence_engine
@@ -37,7 +37,7 @@ describe EventStore::Base do
     
   describe "open_stream" do
     it "should open stream with persistence engine" do
-      mock_stream = double(:stream)
+      mock_stream = instance_double(EventStore::EventStream)
       expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
         expect(stream_id).to eql "some-stream-id"
         expect(pe).to be persistence_engine
@@ -47,7 +47,7 @@ describe EventStore::Base do
     end
       
     it "should handle min_revision option when initializing" do
-      mock_stream = double(:stream)
+      mock_stream = instance_double(EventStore::EventStream)
       expect(EventStore::EventStream).to receive(:open_stream) do |stream_id, pe, options|
         expect(options[:min_revision]).to eql 10
         mock_stream

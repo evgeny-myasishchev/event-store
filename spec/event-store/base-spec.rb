@@ -58,8 +58,8 @@ describe EventStore::Base do
   
   describe "purge" do
     it "should use persistence engine to purge the stream" do
-      expect(persistence_engine).to receive(:purge)
-      store.purge
+      expect(persistence_engine).to receive(:purge!)
+      store.purge!
     end
   end
 end

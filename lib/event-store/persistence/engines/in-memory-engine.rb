@@ -38,7 +38,7 @@ module EventStore::Persistence::Engines
       commit
     end
     
-    def purge
+    def purge!
       @streams_store = {}
     end
     

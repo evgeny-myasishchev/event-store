@@ -7,7 +7,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
   subject {
     engine.connection.drop_table?(:'event-store-commits')
     engine.init_engine
-    engine.purge
+    engine.purge!
     engine
   }
   
@@ -179,7 +179,7 @@ describe EventStore::Persistence::Engines::SqlEngine do
       commit1 = build_commit("stream-1", "commit-1", "event-1", "event-2")
       commit2 = build_commit("stream-2", "commit-2", "event-1", "event-2", "event-3")
       commit_all(subject, commit1, commit2)
-      subject.purge
+      subject.purge!
       table = subject.connection[:'event-store-commits']
       expect(table.count).to eql 0
     end

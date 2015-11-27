@@ -4,7 +4,7 @@ describe 'EventStore::Base integration' do
   subject {
     engine = EventStore::Persistence::Engines::SqlEngine.new(RSpec.configuration.database_config, {:orm_log_level => :debug})
     engine.init_engine
-    engine.purge
+    engine.purge!
     
     EventStore::Bootstrap.bootstrap do |with|
       with.persistence engine

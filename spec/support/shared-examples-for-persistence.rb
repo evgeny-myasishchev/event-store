@@ -175,13 +175,13 @@ shared_examples "generic-persistence-engine" do
     end
   end 
   
-  describe "purge" do
+  describe "purge!" do
     before(:each) do
       commit1 = build_commit("stream-1", "commit-1", "event-1", "event-2")
       commit2 = build_commit("stream-2", "commit-2", "event-1", "event-2", "event-3")
       
       commit_all(subject, commit1, commit2)
-      subject.purge
+      subject.purge!
     end
     
     it "should remove all commits for all streams" do

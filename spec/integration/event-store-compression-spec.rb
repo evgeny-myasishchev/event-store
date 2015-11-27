@@ -5,7 +5,7 @@ describe 'EventStore::Base integration' do
     store = EventStore::Bootstrap.bootstrap do |with|
       with.sql_persistence(RSpec.configuration.database_config, {:orm_log_level => :debug}).compress
     end
-    store.purge
+    store.purge!
     store
   }
   

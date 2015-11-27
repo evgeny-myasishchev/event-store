@@ -122,7 +122,7 @@ module EventStore::Persistence::Engines
       @initialized = true
     end
     
-    def purge
+    def purge!
       Log.warn "Purging event store..."
       @storage.delete
       nil

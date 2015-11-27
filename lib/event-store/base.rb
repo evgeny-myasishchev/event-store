@@ -31,7 +31,7 @@ class EventStore::Base
   end
   
   #Removes all events from the stream. Use with caution.
-  def purge
-    @persistence_engine.purge
+  def purge!
+    @persistence_engine.purge!
   end
 end

@@ -54,7 +54,7 @@ module EventStore::Persistence
     end
 
     #Remove all events from the the streams
-    def purge
+    def purge!
       raise "Not implemented"
     end
   end

@@ -63,12 +63,12 @@ class EventStore::EventStream
     end
     Log.debug "Committing '#{stream_id}'. #{@uncommitted_events.length} uncommitted events to commit."
     attempt = EventStore::Commit.build(self, @uncommitted_events.dup, headers)
-    @persistence_engine.commit(attempt)
+    commit = @persistence_engine.commit(attempt)
     @new_stream = false #After commits are committed the stream is not new anymore
-    populate_stream_with([attempt])
-    attempt.events.each { |evt| @uncommitted_events.delete(evt) }
+    populate_stream_with([commit])
+    commit.events.each { |evt| @uncommitted_events.delete(evt) }
     Log.debug 'Done.'
-    attempt
+    commit
   end
   
   class << self

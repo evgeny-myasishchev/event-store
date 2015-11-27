@@ -134,6 +134,12 @@ describe EventStore::EventStream do
   
   describe "commit_changes" do
     let(:stream) { described_class.create_stream("fake-stream-id", persistence_engine) }
+
+    before do
+      allow(persistence_engine).to receive(:commit) do |attempt|
+        attempt
+      end
+    end
     
     it "should build commit and commit it with persistence engine" do
       evt1 = double("event-1"), evt2 = double("event-2")
@@ -142,7 +148,7 @@ describe EventStore::EventStream do
       attempt = instance_double(EventStore::Commit, stream_revision: 2, :commit_id => "commit-1", :commit_sequence => 1, :events => [evt1, evt2])
       expect(EventStore::Commit).to receive(:build).with(stream, [evt1, evt2], {}).and_return(attempt)
       
-      expect(persistence_engine).to receive(:commit).with(attempt)
+      expect(persistence_engine).to receive(:commit).with(attempt) { attempt }
       
       expect(stream.commit_changes()).to eql attempt
     end
@@ -183,14 +189,14 @@ describe EventStore::EventStream do
       expect(stream.committed_events[4]).to eql evt2
     end
     
-    it "should return committed commit with events" do
+    it "should return committed commit" do
       evt1 = double("event-1"), evt2 = double("event-2")
       stream.add(evt1).add(evt2)
+
+      commit = instance_double(EventStore::Commit, events: [], stream_revision: 1, commit_sequence: 1)
+      expect(persistence_engine).to receive(:commit) { commit }
       
-      commit = stream.commit_changes
-      expect(commit.events.length).to eql(2)
-      expect(commit.events).to include evt1
-      expect(commit.events).to include evt2
+      expect(stream.commit_changes).to be commit
     end
 
     it "should build commit with headers" do
